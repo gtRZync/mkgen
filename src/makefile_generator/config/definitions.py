@@ -54,4 +54,4 @@ SDL2_FLAGS = {
 }
 SDL2_CFLAGS = '$(shell pkg-config --cflags sdl2)'
 
-TEMPLATES_PATH = Path('makefile-generator/templates')
+TEMPLATES_PATH = Path('src/makefile_generator/templates')

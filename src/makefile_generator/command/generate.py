@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 import sys
 
-from config import (
+from makefile_generator.config import (
     C_STANDARDS,
     COMPILERS,
     CPP_STANDARDS,
@@ -17,7 +17,7 @@ from config import (
 from jinja2 import Environment, FileSystemLoader
 from rich.console import Console
 from rich.text import Text
-from utils import get_user_input, single_choice
+from makefile_generator.utils import get_user_input, single_choice
 
 console = Console()
 console_err = Console(stderr=True)

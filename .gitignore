@@ -3,3 +3,5 @@ DEV_FLOW.md
 test/
 test.py
 .vscode/
+build/
+*.egg-info

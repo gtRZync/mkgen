@@ -4,11 +4,11 @@ import signal
 import sys
 from time import sleep
 
-from command import generate
+from makefile_generator.command import generate
 from rich.align import Align
 from rich.console import Console
 from rich.text import Text
-from utils import HELP_TEXT, USAGE_TEXT
+from makefile_generator.utils import HELP_TEXT, USAGE_TEXT
 
 
 
