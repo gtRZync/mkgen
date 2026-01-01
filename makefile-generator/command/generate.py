@@ -68,15 +68,15 @@ def _generate_makefile(data: dict[str, dict[str, str] | str | bool], args: argpa
             sys.exit(1)
             
 
-def _choose_langage(data: dict[str, dict[str, str] | str | bool]) -> str:
+def _choose_langage(data: dict) -> str:
     langs = ['c++', 'c']
     choice = single_choice('Choose the Langage', langs, console)
-    if choice == 'c++':
+    if choice.lower() == 'c++':
         data['src_ext'] = '.cpp'
-        data['var'] = 'CXX'
+        data['compiler']['var'] = 'CXX'
     else:
         data['src_ext'] = '.c'
-        data['var'] = 'CC'
+        data['compiler']['var'] = 'CC'
     return choice
 
 def _choose_compiler() -> str:
@@ -88,6 +88,12 @@ def _choose_standard(langage: str) -> str:
 
 def _chose_binary_name() -> str :
     return get_user_input("Enter the output binary file's name", console)
+    
+def get_key_for(target_system: str, /):
+    if target_system == 'windows':
+        return 'win32'
+    else:
+        return 'unix'
 
 def _choose_gui_lib(data: dict[str, dict[str, str] | str | bool], args: argparse.Namespace) -> None:
     gui_libs = ['sdl2', 'sfml', 'raylib']
@@ -107,13 +113,13 @@ def _choose_gui_lib(data: dict[str, dict[str, str] | str | bool], args: argparse
             data['gui_lib_cflags'] = RAYLIB_CFLAGS
     else:
         if lib == 'sfml':
-            data['gui_lib_flags'] = SFML_FLAGS[args.target_system]
+            data['gui_lib_flags'] = SFML_FLAGS[get_key_for(args.target_system)]
             data['gui_lib_cflags'] = SFML_CFLAGS
         elif lib == 'sdl2':
-            data['gui_lib_flags'] = SDL2_FLAGS[args.target_system]
+            data['gui_lib_flags'] = SDL2_FLAGS[get_key_for(args.target_system)]
             data['gui_lib_cflags'] = SDL2_CFLAGS
         else:
-            data['gui_lib_flags'] = RAYLIB_FLAGS[args.target_system]
+            data['gui_lib_flags'] = RAYLIB_FLAGS[get_key_for(args.target_system)]
             data['gui_lib_cflags'] = RAYLIB_CFLAGS
 
 
@@ -171,6 +177,7 @@ def generate(args: argparse.Namespace) -> None:
         langage = args.lang.lower()
     elif args.lang and args.lang.lower() == 'c++':
         langage = args.lang.lower()
+        data['compiler']['var'] = 'CXX'
         data['src_ext'] = '.cpp'
     else:
         langage = _choose_langage(data)
