@@ -41,7 +41,7 @@ mkgen automates the boring part so I can focus on writing code.
 1. Start a small C or C++ project
 2. Add more `.c` / `.cpp` files over time
 3. Add headers, maybe a graphical library
-4. Run `mkgen generate --target <system>`
+4. Run `mkgen generate --target-system <system>`
 5. Get a ready‑to‑use Makefile
 
 No manual compilation. No rewriting Makefiles.
@@ -92,7 +92,7 @@ pip install .
 3. You're finally ready to generate your Makefiles on the go :
 
 ```sh
-mkgen generate --target <system>
+mkgen generate --target-system <system>
 ```
 
 or 
@@ -112,12 +112,12 @@ Specify the system/OS for which the Makefile should be generated (e.g., `linux`,
 
 **Example:** 
 ```sh
-mkgen generate --target <system>
+mkgen generate --target-system <system>
 ```
 
 ### `--cross-platform`  
 Generate a Makefile that works across multiple systems.  
-> ⚠️ Cannot be used together with `--target-system`.  
+> ⚠️ Cannot be used together with `--target-system-system`.  
 **Example:** 
 ```sh
 mkgen generate --cross-platform
@@ -127,42 +127,42 @@ mkgen generate --cross-platform
 Specify the programming language to use. Supported options: `C` or `C++`.  
 **Example:** 
 ```sh
-mkgen generate --target <system> --lang c++
+mkgen generate --target-system <system> --lang c++
 ```
 
 ### `-c` / `--compiler`
 Specify the compiler to use. This value will be written into the generated Makefile as the compiler for building the project.
 **Example`:** 
 ```sh
-mkgen generate --target <system> --compiler clang++
+mkgen generate --target-system <system> --compiler clang++
 ```
 
 ### `-std` / `--standard`
 Specify the language standard to use (e.g., c11, c17, c++11, c++17, c++20). This will be added to the compiler flags in the Makefile.
 **Example:** 
 ```sh
-mkgen generate --target <system> -std c++17
+mkgen generate --target-system <system> -std c++17
 ```
 
 ### `--use-gui-lib`  
 Include GUI library flags in the compilation process. When enabled, the generated Makefile will add the necessary GUI library linker flags and/or `--cflags` for compilation. Supported gui lib for now maybe: `SDL2`, `SFML` and `RAYLIB`.  
 **Example:** 
 ```sh
-mkgen generate --target <system> --use-gui-lib
+mkgen generate --target-system <system> --use-gui-lib
 ```
 
 ### `--output-path`  
 Specify the output directory where the makefile will be generated at (current directory is used if path is faulty).
 **Example:** 
 ```sh
-mkgen generate --target <system> --output-path path/to/directory
+mkgen generate --target-system <system> --output-path path/to/directory
 ```
 
 ### `--binary-name`  
 Specify the name of the output binary/executable. The generated Makefile will use this name for the compiled program.  
 **Example:** 
 ```sh
-mkgen generate --target <system> --output-path path/to/directory
+mkgen generate --target-system <system> --binary-name my_app
 ```
 
 > [!NOTE]
