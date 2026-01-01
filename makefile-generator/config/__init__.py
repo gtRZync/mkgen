@@ -1,0 +1,25 @@
+from .definitions import (
+    C_STANDARDS,
+    COMPILERS,
+    CPP_STANDARDS,
+    RAYLIB_CFLAGS,
+    RAYLIB_FLAGS,
+    SDL2_CFLAGS,
+    SDL2_FLAGS,
+    SFML_CFLAGS,
+    SFML_FLAGS,
+    TEMPLATES_PATH,
+)
+
+__all__ = [
+    'SDL2_CFLAGS',
+    'SDL2_FLAGS',
+    'SFML_CFLAGS',
+    'SFML_FLAGS',
+    'RAYLIB_CFLAGS',
+    'RAYLIB_FLAGS',
+    'CPP_STANDARDS',
+    'C_STANDARDS',
+    'COMPILERS',
+    'TEMPLATES_PATH'
+]
