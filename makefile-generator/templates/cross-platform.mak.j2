@@ -10,10 +10,6 @@ else
     {{compiler.var}}FLAGS += -O2 -s -DNDEBUG
 endif
 
-{% if use_gui_lib %}
-LIBS = {{ gui_lib_flags }}
-{% endif %}
-
 ifeq ($(VERBOSE), 1)
     Q := 
 else
@@ -31,6 +27,9 @@ INCLUDE_DIR := {{ directories.include }}
 OUT := $(BIN_DIR)/{{ output_file }}
 
 ifeq ($(OS), Windows_NT)
+    {% if use_gui_lib %}
+    LIBS = {{ gui_lib_flags }}
+    {% endif %}
     EXE := .exe
     ENSURE_BIN := if not exist $(BIN_DIR) mkdir $(BIN_DIR)
     ENSURE_BUILD := if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
@@ -40,10 +39,11 @@ ifeq ($(OS), Windows_NT)
     RUN_CMD := $(OUT)
     DONE := echo Build complete for Windows_NT
 else ifeq ($(UNAME_S), Darwin)
-    {{ compiler.var }} := clang
     {% if use_gui_lib %}
+    LIBS = {{ unix_gui_lib_flags }}
     {{compiler.var}}FLAGS += {{ gui_lib_cflags}}
     {% endif %}
+    {{ compiler.var }} := clang
     EXE := 
     ENSURE_BIN := mkdir -p $(BIN_DIR)
     ENSURE_BUILD := mkdir -p $(BUILD_DIR)
@@ -53,6 +53,7 @@ else ifeq ($(UNAME_S), Darwin)
     DONE := echo Build complete for Mac OS 
 else ifeq ($(UNAME_S), Linux)
     {% if use_gui_lib %}
+    LIBS = {{ unix_gui_lib_flags }}
     {{compiler.var}}FLAGS += {{ gui_lib_cflags}}
     {% endif %}
     EXE := 
