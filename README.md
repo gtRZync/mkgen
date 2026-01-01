@@ -108,7 +108,7 @@ Specify the system/OS for which the Makefile should be generated (e.g., `linux`,
 > ⚠️ This argument is mutually exclusive with `--cross-platform`.  
 
 > [!NOTE]
-> This argument is `required`
+> This argument is `required` if `--cross-platform` is not provided.
 
 **Example:** 
 ```sh
@@ -117,7 +117,10 @@ mkgen generate --target-system <system>
 
 ### `--cross-platform`  
 Generate a Makefile that works across multiple systems.  
-> ⚠️ Cannot be used together with `--target-system-system`.  
+> ⚠️ Cannot be used together with `--target-system`.  
+
+> [!NOTE]
+> This argument is `required` if `--target-system` is not provided.
 **Example:** 
 ```sh
 mkgen generate --cross-platform
