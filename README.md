@@ -76,7 +76,7 @@ It exists because *I needed it*.
 1. Clone the repository or grab the zipped repository:
 
 ```sh
-git clone https://github.com/gtRZync/makefile-generator.git
+git clone https://github.com/gtRZync/mkgen.git
 ```
 
 ```sh
@@ -106,6 +106,7 @@ mkgen generate --cross-platform
 ### `--target-system`  
 Specify the system/OS for which the Makefile should be generated (e.g., `linux`, `windows`, `macos`).  
 > ⚠️ This argument is mutually exclusive with `--cross-platform`.  
+
 > [!NOTE]
 > This argument is `required`
 
