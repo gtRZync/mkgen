@@ -1,0 +1,66 @@
+.PHONY : clean run $(BIN_DIR) $(BUILD_DIR) all bear
+
+MODE ?= release
+VERBOSE ?= 0
+
+{{ compiler.var }} := {{ compiler.name }}
+{{compiler.var}}FLAGS = -std={{compiler.std}} -Wall -Werror -I$(INCLUDE_DIR)
+ifeq ($(MODE), debug)
+    {{compiler.var}}FLAGS += -g -DDEBUG
+else
+    {{compiler.var}}FLAGS += -O2 -s -DNDEBUG
+endif
+
+{% if use_gui_lib %}
+LIBS = {{ gui_lib_flags }}
+{% endif %}
+
+ifeq ($(VERBOSE), 1)
+    Q := 
+else
+    Q := @
+endif
+
+BIN_DIR := {{ directories.bin }}
+SOURCE_DIR := {{ directories.src | default('.') }}
+BUILD_DIR := {{ directories.build }}
+INCLUDE_DIR := {{ directories.include }}
+OUT := $(BIN_DIR)/{{output_file}}.exe
+
+ENSURE_BIN := if not exist $(BIN_DIR) mkdir $(BIN_DIR)
+ENSURE_BUILD := if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
+CLEAN := cmd /C "if exist $(BUILD_DIR)\\*.o del /Q /F $(BUILD_DIR)\\*.o & if exist $(BIN_DIR)\\*.exe del /Q /F $(BIN_DIR)\\*.exe"
+OUT := $(OUT)
+RUN_CMD := $(OUT)
+DONE := echo Build complete for Windows_NT
+
+SRCS := $(wildcard $(SOURCE_DIR)/*{{src_ext}})
+OBJS := $(patsubst $(SOURCE_DIR)/%{{src_ext}}, $(BUILD_DIR)/%.o, $(SRCS))
+
+all: $(OUT)
+	$(Q)$(DONE)
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%{{src_ext}} | $(BUILD_DIR)
+	$(Q)echo "Compiling $<"
+	$(Q)$({{compiler.var}}) $({{compiler.var}}FLAGS) -c -o $@ $<
+
+$(OUT): $(OBJS) | $(BIN_DIR)
+	$(Q)echo "Compiling $(OBJS)"
+	$(Q)$({{compiler.var}}) -o $@ $^ $({{compiler.var}}FLAGS) {% if use_gui_lib %} $(LIBS) {% endif %}
+
+run: $(OUT)
+	$(Q)$(DONE)
+	$(Q)$(RUN_CMD)
+	
+$(BUILD_DIR):
+	$(Q)$(ENSURE_BUILD)
+
+$(BIN_DIR):
+	$(Q)$(ENSURE_BIN)
+
+clean:
+	$(Q)echo "Executing clean command"
+	$(Q)$(CLEAN)
+
+bear:
+	$(Q)bear -- make

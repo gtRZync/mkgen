@@ -1,0 +1,96 @@
+.PHONY: bear clean run all $(BIN_DIR) $(BUILD_DIR)
+MODE ?= release
+VERBOSE ?= 0
+
+{{ compiler.var }} := {{ compiler.name }}
+{{compiler.var}}FLAGS = -std={{compiler.std}} -Wall -Werror -I$(INCLUDE_DIR)
+ifeq ($(MODE), debug)
+    {{compiler.var}}FLAGS += -g -DDEBUG
+else
+    {{compiler.var}}FLAGS += -O2 -s -DNDEBUG
+endif
+
+{% if use_gui_lib %}
+LIBS = {{ gui_lib_flags }}
+{% endif %}
+
+ifeq ($(VERBOSE), 1)
+    Q := 
+else
+    Q := @
+endif
+
+ifneq ($(OS), Windows_NT)
+    UNAME_S := $(shell uname -s)
+endif
+
+BIN_DIR := {{ directories.bin }}
+SOURCE_DIR := {{ directories.src | default('.') }}
+BUILD_DIR := {{ directories.build }}
+INCLUDE_DIR := {{ directories.include }}
+OUT := $(BIN_DIR)/{{ output_file }}
+
+ifeq ($(OS), Windows_NT)
+    EXE := .exe
+    ENSURE_BIN := if not exist $(BIN_DIR) mkdir $(BIN_DIR)
+    ENSURE_BUILD := if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
+    RM := cmd /C "if exist $(BUILD_DIR)\\*.o del /Q /F $(BUILD_DIR)\\*.o & if exist $(BIN_DIR)\\*.exe del /Q /F $(BIN_DIR)\\*.exe"
+    CLEAN := $(RM)
+    OUT := $(OUT)$(EXE)
+    RUN_CMD := $(OUT)
+    DONE := echo Build complete for Windows_NT
+else ifeq ($(UNAME_S), Darwin)
+    {{ compiler.var }} := clang
+    {% if use_gui_lib %}
+    {{compiler.var}}FLAGS += {{ gui_lib_cflags}}
+    {% endif %}
+    EXE := 
+    ENSURE_BIN := mkdir -p $(BIN_DIR)
+    ENSURE_BUILD := mkdir -p $(BUILD_DIR)
+    RM := rm -f
+    CLEAN := $(RM) $(BUILD_DIR)/*.o $(BIN_DIR)/* 2>/dev/null
+    RUN_CMD := ./$(OUT)
+    DONE := echo Build complete for Mac OS 
+else ifeq ($(UNAME_S), Linux)
+    {% if use_gui_lib %}
+    {{compiler.var}}FLAGS += {{ gui_lib_cflags}}
+    {% endif %}
+    EXE := 
+    ENSURE_BIN := mkdir -p $(BIN_DIR)
+    ENSURE_BUILD := mkdir -p $(BUILD_DIR)
+    RM := rm -f
+    CLEAN := $(RM) $(BUILD_DIR)/*.o $(BIN_DIR)/* 2>/dev/null
+    RUN_CMD := ./$(OUT)
+    DONE := echo Build complete for Linux
+endif
+
+SOURCES := $(wildcard $(SOURCE_DIR)/*{{src_ext}})
+OBJS = $(patsubst $(SOURCE_DIR)/%{{src_ext}}, $(BUILD_DIR)/%.o, $(SOURCES))
+
+all: $(OUT)
+	$(Q)$(DONE)
+	
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%{{src_ext}} | $(BUILD_DIR)
+	$(Q)echo "Compiling $<"
+	$(Q)$({{compiler.var}}) $({{compiler.var}}FLAGS) -c -o $@ $<
+
+$(OUT): $(OBJS) | $(BIN_DIR)
+	$(Q)echo "Compiling $(OBJS)"
+	$(Q)$({{compiler.var}}) -o $@ $^ $({{compiler.var}}FLAGS) {% if use_gui_lib %} $(LIBS) {% endif %}
+
+bear:
+	$(Q)bear -- make
+
+run: $(OUT)
+	$(Q)$(DONE)
+	$(Q)$(RUN_CMD)
+	
+$(BUILD_DIR):
+	$(Q)$(ENSURE_BUILD)
+
+$(BIN_DIR):
+	$(Q)$(ENSURE_BIN)
+
+clean:
+	$(Q)echo "Executing clean command"
+	$(Q)$(CLEAN)
