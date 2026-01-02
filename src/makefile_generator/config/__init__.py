@@ -1,4 +1,4 @@
-from .definitions import (
+from .constants import (
     C_STANDARDS,
     COMPILERS,
     CPP_STANDARDS,
@@ -9,6 +9,7 @@ from .definitions import (
     SFML_CFLAGS,
     SFML_FLAGS,
     TEMPLATES_DIR,
+    TEMPLATES
 )
 
 __all__ = [
@@ -21,5 +22,6 @@ __all__ = [
     'CPP_STANDARDS',
     'C_STANDARDS',
     'COMPILERS',
-    'TEMPLATES_DIR'
+    'TEMPLATES_DIR',
+    'TEMPLATES'
 ]

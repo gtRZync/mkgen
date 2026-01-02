@@ -56,3 +56,10 @@ SDL2_CFLAGS = '$(shell pkg-config --cflags sdl2)'
 
 TEMPLATES_DIR = files('makefile_generator') / 'templates'
 
+TEMPLATES = {
+    'windows': '_WIN32.mak.j2',
+    'linux': '__linux__.mak.j2',
+    'mac': '__APPLE__.mak.j2',
+    'cross-platform' : 'cross-platform.mak.j2'
+}
+
