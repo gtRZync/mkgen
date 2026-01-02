@@ -6,7 +6,7 @@ raylib static :
     -lraylib -lopengl32 -lgdi32 -lwinmm -luser32 -lshell32
 '''
 
-from pathlib import Path
+from importlib.resources import files
 
 CPP_STANDARDS = [
     "C++98",
@@ -54,4 +54,5 @@ SDL2_FLAGS = {
 }
 SDL2_CFLAGS = '$(shell pkg-config --cflags sdl2)'
 
-TEMPLATES_PATH = Path('src/makefile_generator/templates')
+TEMPLATES_DIR = files('makefile_generator') / 'templates'
+

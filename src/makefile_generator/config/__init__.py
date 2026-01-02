@@ -8,7 +8,7 @@ from .definitions import (
     SDL2_FLAGS,
     SFML_CFLAGS,
     SFML_FLAGS,
-    TEMPLATES_PATH,
+    TEMPLATES_DIR,
 )
 
 __all__ = [
@@ -21,5 +21,5 @@ __all__ = [
     'CPP_STANDARDS',
     'C_STANDARDS',
     'COMPILERS',
-    'TEMPLATES_PATH'
+    'TEMPLATES_DIR'
 ]
