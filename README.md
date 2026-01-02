@@ -159,8 +159,9 @@ Include GUI library flags in the compilation process. When enabled, the generate
 mkgen generate --target-system <system> --use-gui-lib
 ```
 
-### `--output-path`  
-Specify the output directory where the makefile will be generated at (current directory is used if path is faulty).
+### `-o` / `--output`  
+Specify the output directory where the makefile will be generated at (current working directory is used if the provided path is faulty).
+
 **Example:** 
 ```sh
 mkgen generate --target-system <system> --output-path path/to/directory
