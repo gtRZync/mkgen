@@ -101,6 +101,8 @@ or
 mkgen generate --cross-platform
 ```
 
+4. Follow the interactive menu and boom a Makefile will appear at the specified output path or current working directory
+
 ## Arguments:
 
 ### `--target-system`  
@@ -121,6 +123,7 @@ Generate a Makefile that works across multiple systems.
 
 > [!NOTE]
 > This argument is `required` if `--target-system` is not provided.
+
 **Example:** 
 ```sh
 mkgen generate --cross-platform
@@ -135,13 +138,15 @@ mkgen generate --target-system <system> --lang c++
 
 ### `-c` / `--compiler`
 Specify the compiler to use. This value will be written into the generated Makefile as the compiler for building the project.
-**Example`:** 
+
+**Example:** 
 ```sh
 mkgen generate --target-system <system> --compiler clang++
 ```
 
 ### `-std` / `--standard`
 Specify the language standard to use (e.g., c11, c17, c++11, c++17, c++20). This will be added to the compiler flags in the Makefile.
+
 **Example:** 
 ```sh
 mkgen generate --target-system <system> -std c++17
