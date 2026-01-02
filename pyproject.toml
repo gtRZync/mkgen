@@ -26,3 +26,5 @@ mkgen = "makefile_generator.cli:main"
 
 [tools.setuptools.packages.find]
 where = ["src"]
+[tool.setuptools.package-data]
+mkgen = ["templates/**/*"]
