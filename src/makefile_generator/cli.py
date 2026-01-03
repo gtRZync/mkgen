@@ -31,13 +31,12 @@ def gradient_text(text, colors):
         gradient.append(char, style=f"bold {colors[i % len(colors)]}")
     return gradient
 
-def graceful_exit(signal, frame):
-    print('\nExiting...Goodbye')
-    sys.exit(0)
-
 def main() -> None:
     colors = ["red", "orange1", "yellow", "green", "cyan", "blue", "magenta"]
     console = Console()
+    def graceful_exit(signal, frame):
+        console.print('\n[bold yellow]Exiting...Goodbye[/]')
+        sys.exit(0)
 
     signal.signal(signal.SIGINT, graceful_exit)
     console.print(Align.center(gradient_text(ASCII_HEADER, colors)))
