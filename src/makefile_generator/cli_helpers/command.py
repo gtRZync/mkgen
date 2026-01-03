@@ -1,9 +1,12 @@
 import argparse
 import sys
+import time
 from pathlib import Path
+from typing import Literal
 
 from jinja2 import Environment, FileSystemLoader
 from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.text import Text
 
 from makefile_generator.config import (
@@ -17,48 +20,90 @@ from makefile_generator.config import (
     SFML_CFLAGS,
     SFML_FLAGS,
     TEMPLATES_DIR,
+    TEMPLATES
 )
-from makefile_generator.utils import get_user_input, single_choice
+from makefile_generator.utils.display_utils import display_panel_text
+from makefile_generator.utils.prompt_utils import get_user_input, single_choice
 
 console = Console()
 console_err = Console(stderr=True)
 
 
+def _create_progress_description(
+    langage: Literal['c', 'c++'] | None,
+    system: Literal['windows', 'mac', 'linux'] | None = None,
+    end: str = '...'
+) -> str:
+
+    description = f'Generating your cross-platform Makefile{end}'
+    if not system and langage:
+        description = f'Generating your cross-platform {langage.upper()} Makefile{end}'
+    if system and langage:
+        description = f'Generating your {langage.upper()} Makefile for {system.capitalize()}{end}'
+    if system and not langage:
+        description = f'Generating your Makefile for {system.capitalize()}{end}'
+
+    return description
+
 #TODO: make it better
-def _generate_makefile(data: dict[str, dict[str, str] | str | bool], args: argparse.Namespace):
+def _generate_makefile(
+    data: dict[str, dict[str, str] | str | bool],
+    args: argparse.Namespace,
+    progress_description: str = 'Generating your Makefile...'
+) -> None:
     template = None
     env = Environment(
         loader=FileSystemLoader(TEMPLATES_DIR), #type: ignore
         lstrip_blocks=True,
         trim_blocks=True
     )
+    #TODO: handle TemplateNotFound
     if args.cross_platform:
-        template = env.get_template('cross-platform.mak.j2')
+        template = env.get_template(TEMPLATES.get('cross-platform', ''))
     else:
-        if args.target_system == 'windows':
-            template = env.get_template('_WIN32.mak.j2')
-        if args.target_system.lower() == 'mac':
-            template = env.get_template('__APPLE__.mak.j2')
-        if args.target_system.lower() == 'linux':
-            template = env.get_template('__linux__.mak.j2')
+        template = env.get_template(TEMPLATES.get(args.target_system, ''))
+        
     if template:
         makefile = template.render(data)
         outdir = Path(args.output) if args.output else Path.cwd()
         #TODO: add check if not a dir use Path.cwd()
         outdir = outdir / 'Makefile'
         if outdir.exists(): #TODO: make overwrite better (maybe add path change..etc)
-            opt = single_choice('A Makefile already exists in output directory.\nDo you wanna overwrite it?', ['yes', 'no'], console)
-            if opt == 'no':
+            user_choice = single_choice('A Makefile already exists in output directory.\nDo you wanna overwrite it?', ['yes', 'no'], console)
+            if user_choice == 'no':
+                display_panel_text(
+                    '[yellow]Makefile generation skipped (existing file not overwritten)[/yellow]',
+                    stream=console,
+                    title='Makefile Generation Skipped',
+                    border_style='yellow'
+                )
                 sys.exit(0)
+        console.print('\n')
         try:
-            with open(outdir , 'wt') as file:
-                file.write(makefile)
+            with Progress(
+                SpinnerColumn(spinner_name='dots'),
+                TextColumn('[progress.description]{task.description}'),
+                transient=True
+            ) as progress:
+                with open(outdir , 'wt') as file:
+                    task = progress.add_task(description=f'[bold magenta]{progress_description}')
+                    file.write(makefile)
+                    # File creation is extremely fast, so I'm faking a spinner for UX purposes.
+                    # The sleep call is purely to give the spinner time to display.
+                    time.sleep(2)
+                    progress.remove_task(task)
+
+            display_panel_text(
+                f'✅ Makefile successfully generated at: [bold yellow]{outdir.parent} [/bold yellow]',
+                stream=console,
+                title='Success'
+            )
         except FileNotFoundError:
             console_err.print("[bold red]Error:[/bold red] Output directory does not exist.")
             sys.exit(1)
 
         except PermissionError:
-            console_err.print("[bold red]Error:[/bold red] Permission denied while writing the file.")
+            console_err.print("[bold red]Error:[/bold red] Permission denied while writing the makefile.")
             sys.exit(1)
 
         except IsADirectoryError:
@@ -66,7 +111,7 @@ def _generate_makefile(data: dict[str, dict[str, str] | str | bool], args: argpa
             sys.exit(1)
 
         except OSError as e:
-            console_err.print(f"[bold red]Error:[/bold red] Failed to write file: {e}")
+            console_err.print(f"[bold red]Error:[/bold red] Failed to write makefile: {e}")
             sys.exit(1)
 
 
@@ -132,13 +177,11 @@ def _prompt_gui_lib_usage(data:  dict[str, dict[str, str] | str | bool], args: a
         _choose_gui_lib(data, args)
 
 def is_target_correct(args: argparse.Namespace) -> bool:
+    systems = {'windows', 'mac', 'linux'}
+
     if args.cross_platform:
         return True
-    if args.target_system.lower() == 'windows':
-        return True
-    if args.target_system.lower() == 'mac':
-        return True
-    if args.target_system.lower() == 'linux':
+    if args.target_system.lower() in systems:
         return True
     return False
 
@@ -157,7 +200,7 @@ def generate(args: argparse.Namespace) -> None:
     if not is_target_correct(args):
         _target_err()
     #TODO: add folders check
-    langage = ''
+    langage = None
     data = {
         'compiler' : {
          'var' : '',
@@ -173,6 +216,12 @@ def generate(args: argparse.Namespace) -> None:
         'output_file' : 'main',
         'src_ext' : ''
     }
+    display_panel_text(
+        _create_progress_description(args.lang, args.target_system, end=''),
+        stream=console,
+        title='INFO',
+        border_style='green',
+    )
     if args.lang and args.lang.lower() == 'c':
         data['src_ext'] = '.c'
         data['compiler']['var'] = 'CC'
@@ -211,4 +260,4 @@ def generate(args: argparse.Namespace) -> None:
     else:
         _prompt_gui_lib_usage(data, args)
 
-    _generate_makefile(data, args)
+    _generate_makefile(data, args, _create_progress_description(langage, args.target_system)) #type: ignore
