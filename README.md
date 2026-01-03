@@ -73,14 +73,14 @@ It exists because *I needed it*.
 
 ## Usage
 
-1. Clone the repository or grab the zipped repository:
+1. Clone the repository:
 
 ```sh
 git clone https://github.com/gtRZync/mkgen.git
 ```
 
 ```sh
-cd makefile-generator
+cd mkgen
 ```
 
 2. Install globally for convenience:
@@ -131,6 +131,7 @@ mkgen generate --cross-platform
 
 ### `-l` / `--lang`
 Specify the programming language to use. Supported options: `C` or `C++`.  
+
 **Example:** 
 ```sh
 mkgen generate --target-system <system> --lang c++
@@ -153,7 +154,8 @@ mkgen generate --target-system <system> -std c++17
 ```
 
 ### `--use-gui-lib`  
-Include GUI library flags in the compilation process. When enabled, the generated Makefile will add the necessary GUI library linker flags and/or `--cflags` for compilation. Supported gui lib for now maybe: `SDL2`, `SFML` and `RAYLIB`.  
+Include GUI library flags in the compilation process. When enabled, the generated Makefile will add the necessary GUI library linker flags and/or `--cflags` for compilation. Supported gui lib for now maybe: `SDL2`, `SFML` and `RAYLIB`.
+
 **Example:** 
 ```sh
 mkgen generate --target-system <system> --use-gui-lib
@@ -164,11 +166,12 @@ Specify the output directory where the makefile will be generated at (current wo
 
 **Example:** 
 ```sh
-mkgen generate --target-system <system> --output-path path/to/directory
+mkgen generate --target-system <system> --output path/to/directory
 ```
 
 ### `--binary-name`  
 Specify the name of the output binary/executable. The generated Makefile will use this name for the compiled program.  
+
 **Example:** 
 ```sh
 mkgen generate --target-system <system> --binary-name my_app
