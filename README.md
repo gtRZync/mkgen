@@ -41,8 +41,8 @@ mkgen automates the boring part so I can focus on writing code.
 1. Start a small C or C++ project
 2. Add more `.c` / `.cpp` files over time
 3. Add headers, maybe a graphical library
-4. Run `mkgen generate --target-system <system>`
-5. Get a ready‑to‑use Makefile
+4. Run `mkgen generate`
+5. Get a ready‑to‑use Makefile after the interactive menu
 
 No manual compilation. No rewriting Makefiles.
 
@@ -92,10 +92,16 @@ pip install .
 3. You're finally ready to generate your Makefiles on the go :
 
 ```sh
-mkgen generate --target-system <system>
+mkgen generate
 ```
 
 or 
+
+```sh
+mkgen generate <system>
+```
+
+or even
 
 ```sh
 mkgen generate --cross-platform
@@ -103,90 +109,55 @@ mkgen generate --cross-platform
 
 4. Follow the interactive menu and boom a Makefile will appear at the specified output path or current working directory
 
-## Arguments:
+## Arguments
 
-### `--target-system`  
-Specify the system/OS for which the Makefile should be generated (e.g., `linux`, `windows`, `macos`).  
-> ⚠️ This argument is mutually exclusive with `--cross-platform`.  
+### Optional positional argument
+| Argument          | Description                                                                                 | Default |
+|------------------|---------------------------------------------------------------------------------------------|---------|
+| `target_system`   | Specify the system/OS for which the Makefile should be generated (e.g., `linux`, `windows`, `macos`). ⚠️ Mutually exclusive with `--cross-platform`. | Current system/OS |
 
-> [!NOTE]
-> This argument is `required` if `--cross-platform` is not provided.
+### Optional keyword arguments (flags)
+| Argument                     | Description                                                                                                                   | Default |
+|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------|----------------|
+| `--cross-platform`            | Generate a Makefile that works across multiple systems. ⚠️ Cannot be used with `target_system`.                                 | Disabled |
+| `-l`, `--lang`                | Specify the programming language to use. Supported: `C` or `C++`.                                                             | None           |
+| `-c`, `--compiler`            | Specify the compiler to use. This value will be written into the generated Makefile.                                           | None           |
+| `-std`, `--standard`          | Specify the language standard to use (e.g., c11, c17, c++11, c++17, c++20). Added to compiler flags in the Makefile.          | None           |
+| `--use-gui-lib`               | Include GUI library flags in compilation. Supported libs: `SDL2`, `SFML`, `RAYLIB`.                                           | Disabled       |
+| `-o`, `--output`              | Specify the output directory for the Makefile. Defaults to current working directory if path is invalid.                       | `./`           |
+| `--binary-name`               | Specify the name of the output binary/executable. The Makefile will use this name for the compiled program.                     | None           |
 
-**Example:** 
+
+
+## Usage examples:
+
+### Defaults to current system
+
 ```sh
-mkgen generate --target-system <system>
+mkgen generate
 ```
 
-### `--cross-platform`  
-Generate a Makefile that works across multiple systems.  
-> ⚠️ Cannot be used together with `--target-system`.  
+### Providing the optional positional argument
 
-> [!NOTE]
-> This argument is `required` if `--target-system` is not provided.
-
-**Example:** 
 ```sh
-mkgen generate --cross-platform
+mkgen generate linux
 ```
 
-### `-l` / `--lang`
-Specify the programming language to use. Supported options: `C` or `C++`.  
+### Using optional flags
 
-**Example:** 
 ```sh
-mkgen generate --target-system <system> --lang c++
+mkgen generate linux --lang C++ -c clang++ -std c++17 --use-gui-lib -o ./build --binary-name my_app
 ```
 
-### `-c` / `--compiler`
-Specify the compiler to use. This value will be written into the generated Makefile as the compiler for building the project.
+### Using cross-platform mode instead of target_system
 
-**Example:** 
 ```sh
-mkgen generate --target-system <system> --compiler clang++
+mkgen generate --cross-platform --lang C
 ```
-
-### `-std` / `--standard`
-Specify the language standard to use (e.g., c11, c17, c++11, c++17, c++20). This will be added to the compiler flags in the Makefile.
-
-**Example:** 
-```sh
-mkgen generate --target-system <system> -std c++17
-```
-
-### `--use-gui-lib`  
-Include GUI library flags in the compilation process. When enabled, the generated Makefile will add the necessary GUI library linker flags and/or `--cflags` for compilation. Supported gui lib for now maybe: `SDL2`, `SFML` and `RAYLIB`.
-
-**Example:** 
-```sh
-mkgen generate --target-system <system> --use-gui-lib
-```
-
-### `-o` / `--output`  
-Specify the output directory where the makefile will be generated at (current working directory is used if the provided path is faulty).
-
-**Example:** 
-```sh
-mkgen generate --target-system <system> --output path/to/directory
-```
-
-### `--binary-name`  
-Specify the name of the output binary/executable. The generated Makefile will use this name for the compiled program.  
-
-**Example:** 
-```sh
-mkgen generate --target-system <system> --binary-name my_app
-```
-
-> [!NOTE]
-> All arguments are optional unless explicitly stated as required.
-
 
 ## Status
 
 This is a personal tool built for real projects. Features may evolve as my workflow evolves.
 
----
-
-## License
 
 <p align="center"><a href="https://github.com/gtRZync/makefile-generator/blob/main/LICENSE"><img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=MIT&colorA=1e1e2e&colorB=89b4fa"/></a></p>
