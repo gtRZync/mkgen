@@ -7,12 +7,7 @@ from rich.align import Align
 from rich.console import Console
 from rich.text import Text
 
-from makefile_generator.cli_helpers.help_text import (
-    REQUIRE_MUTUALLY_EXCLUSIVE,
-    USAGE_TEXT,
-    show_help,
-)
-from makefile_generator.cli_helpers.parser import build_parser
+from makefile_generator.cli_helpers.parser import parse_args
 
 ASCII_HEADER = '''
 
@@ -44,17 +39,7 @@ def main() -> None:
     console.print(Align.center(welcome_text))
     console.print("\n")
     time.sleep(.5) #show the ascii longer lol
-    parser = build_parser()
-    args = parser.parse_args()
-    #FIXME: fix this if i ever add other commands
-    if args.command == 'generate':
-        if args.help:
-            show_help()
-        if not (args.target_system or args.cross_platform):
-            show_help(REQUIRE_MUTUALLY_EXCLUSIVE)
-    else:
-        show_help(USAGE_TEXT)
-
+    args = parse_args()
     args.func(args)
 
 if __name__ == '__main__':
