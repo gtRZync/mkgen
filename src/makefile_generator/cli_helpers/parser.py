@@ -1,7 +1,20 @@
 import argparse
-from .command import generate
 
-def build_parser() -> argparse.ArgumentParser:
+from .command import generate
+from .help_text import MUTUALLY_EXCLUSIVE, USAGE_TEXT, show_help
+
+
+def _set_default_system() -> str:
+    import platform
+
+    if platform.system().lower() == 'darwin':
+        return 'mac'
+    else:
+        return platform.system().lower()
+
+
+
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="A simple python tool to generate C/C++ makefiles", prog="mkgen", add_help=False)
     parser.add_argument(
         '-h', '--help',
@@ -9,15 +22,16 @@ def build_parser() -> argparse.ArgumentParser:
         help='Show help'
     )
     subparsers = parser.add_subparsers(dest='command')
-    
+
     generate_parser = subparsers.add_parser('generate', add_help=False)
-    platform = generate_parser.add_mutually_exclusive_group()
-    platform.add_argument(
-        '--target-system',
+    generate_parser.add_argument(
+        'target_system',
+        nargs='?',
+        default=None,
         type=str,
-        help='Target environnement (e.g : Linux, Windows..etc)'
+        help='Target environnement (e.g : Linux, Windows..etc), defaults to current system'
     )
-    platform.add_argument(
+    generate_parser.add_argument(
         '--cross-platform',
         action='store_true',
         help="Generate a Makefile that works across multiple systems."
@@ -25,17 +39,17 @@ def build_parser() -> argparse.ArgumentParser:
     generate_parser.add_argument(
         '-l', '--lang',
         type=str,
-        help='The lang in which the makefile should be generated'
+        help='Specify the programming language'
     )
     generate_parser.add_argument(
         '-c', '--compiler',
         type=str,
-        help='Your compiler'
+        help='Specify the compiler to use in the Makefile'
     )
     generate_parser.add_argument(
         '-std', '--standard',
         type=str,
-        help='The compiler standard to be used (if a wrong one is given it defaults to c17 or c++17)'
+        help='Specify the language standard (e.g., c11, c++17, c++20)'
     )
     generate_parser.add_argument(
         '--use-gui-lib',
@@ -45,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     generate_parser.add_argument(
         '--binary-name',
         type=str,
-        help='Specify the name of the output binary/executable. The generated Makefile will use this name for the compiled program.'
+        help='Name of the output binary/executable.'
     )
     generate_parser.add_argument(
         '-o', '--output',
@@ -58,4 +72,23 @@ def build_parser() -> argparse.ArgumentParser:
         help='Show help'
     )
     generate_parser.set_defaults(func=generate)
-    return parser
+    args = parser.parse_args()
+
+    if args.command:
+        #FIXME: fix this (if-else) if i ever add other commands
+        if args.command == 'generate':
+            if args.help:
+                show_help()
+
+            if (args.cross_platform and args.target_system is not None):
+                show_help(MUTUALLY_EXCLUSIVE)
+
+            if args.cross_platform:
+                args.target_system = None
+            elif args.target_system is None:
+                args.target_system = _set_default_system()
+        else:
+            show_help(USAGE_TEXT)
+
+
+    return args

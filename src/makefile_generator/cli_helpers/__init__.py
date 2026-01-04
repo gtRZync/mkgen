@@ -1,10 +1,10 @@
-from .help_text import HELP_TEXT, REQUIRE_MUTUALLY_EXCLUSIVE, USAGE_TEXT, show_help
-from .parser import build_parser
+from .help_text import HELP_TEXT, MUTUALLY_EXCLUSIVE, USAGE_TEXT, show_help
+from .parser import parse_args
 
 __all__ = [
 'HELP_TEXT',
 'USAGE_TEXT',
 'show_help',
-'build_parser',
-'REQUIRE_MUTUALLY_EXCLUSIVE'
+'parse_args',
+'MUTUALLY_EXCLUSIVE'
 ]
