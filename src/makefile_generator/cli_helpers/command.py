@@ -177,14 +177,17 @@ def _prompt_gui_lib_usage(data:  dict[str, dict[str, str] | str | bool], args: a
         _choose_gui_lib(data, args)
 
 def is_target_correct(args: argparse.Namespace) -> bool:
-    systems = {'windows', 'mac', 'linux'}
+    systems = {'windows', 'mac', 'linux', 'macos'}
 
     if args.cross_platform:
         return True
     if args.target_system.lower() in systems:
+        if args.target_system.lower() == 'macos':
+            args.target_system = 'mac'
         return True
     return False
 
+#TODO: handle case platform is not: win32, darwin or linux
 def _target_err():
     text = Text()
     text.append("Error: ", style="bold red")
