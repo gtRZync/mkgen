@@ -8,8 +8,8 @@ from .constants import (
     SDL2_FLAGS,
     SFML_CFLAGS,
     SFML_FLAGS,
+    TEMPLATES,
     TEMPLATES_DIR,
-    TEMPLATES
 )
 
 __all__ = [
@@ -23,5 +23,5 @@ __all__ = [
     'C_STANDARDS',
     'COMPILERS',
     'TEMPLATES_DIR',
-    'TEMPLATES'
+    'TEMPLATES',
 ]

@@ -8,8 +8,6 @@ raylib static :
 
 from importlib.resources import files
 
-__VERSION__ = '0.1.2'
-
 CPP_STANDARDS = [
     "C++98",
     "C++03",
