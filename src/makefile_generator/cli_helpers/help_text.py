@@ -1,5 +1,7 @@
 import sys
 
+from makefile_generator import __build__, __version__, __platform__
+
 HELP_TEXT = '''
 usage: mkgen generate [-h] [target_system] [--cross-platform]
                       [-l LANG] [-c COMPILER] [-std STANDARD] [--use-gui-lib]
@@ -14,20 +16,20 @@ positional arguments:
 
 options:
   -h, --help                    show this help message and exit
-  
+
   --cross-platform              Generate a Makefile that works across multiple systems.
                                 ⚠ Cannot be used with target_system
-                        
+
   -l, --lang LANG               Specify the programming language
-  
+
   -c, --compiler COMPILER       Specify the compiler to use in the Makefile
-  
+
   -std, --standard STANDARD     Specify the language standard (e.g., c11, c++17, c++20)
-  
+
   --use-gui-lib                 Wether or not to include gui lib flags and or --cflags
-  
+
   --binary-name BINARY_NAME     Name of the output binary/executable.
-  
+
   -o, --output OUTPUT           The path where the makefile will be created at (if
                                 invalid current directory will be used)
 
@@ -64,7 +66,7 @@ Usage: mkgen <command> [OPTIONS]
 
 Commands:
   generate     Generate a C/C++ Makefile for your project
-  
+
 Options:
     -h, --help                      Show this help message and exit
 """
@@ -79,6 +81,8 @@ Choose either:
   - the --cross-platform option, or
   - nothing (defaults to your current system)
 '''
+
+VERSION_TEXT = f'mkgen version {__version__}.{__platform__}.{__build__}'
 
 def show_help(help_text: str = HELP_TEXT):
     print(help_text)
