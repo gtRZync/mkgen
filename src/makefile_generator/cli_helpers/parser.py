@@ -87,8 +87,8 @@ def parse_args() -> argparse.Namespace:
                 args.target_system = None
             elif args.target_system is None:
                 args.target_system = _set_default_system()
-        else:
-            show_help(USAGE_TEXT)
+    else:
+        show_help(USAGE_TEXT)
 
 
     return args
