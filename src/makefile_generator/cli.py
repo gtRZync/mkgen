@@ -9,7 +9,7 @@ from rich.align import Align
 from rich.console import Console
 from rich.text import Text
 
-from makefile_generator.cli_helpers.parser import normalize_args, parse_args
+from makefile_generator.cli_helpers.parser import normalize_target_system, parse_args
 
 ASCII_HEADER = '''
 
@@ -38,7 +38,7 @@ def show_ascii_art(show: bool, stream: Console):
     stream.print("\n")
     time.sleep(.5) #show the ascii longer lol
 
-def check_for_command(args: argparse.Namespace) -> None | NoReturn:
+def handle_no_command(args: argparse.Namespace) -> None | NoReturn:
     if not args.command:
         from makefile_generator.cli_helpers.help_text import USAGE_TEXT
         from makefile_generator.commands.version import mkgen_version
@@ -56,12 +56,13 @@ def main() -> None:
     signal.signal(signal.SIGINT, graceful_exit)
 
     args = parse_args()
-    args = normalize_args(args)
+    args = normalize_target_system(args)
 
-    check_for_command(args)
+    handle_no_command(args)
+    print(args)
 
     show_ascii_art(
-        show=(not args.version and not args.help),
+        show=args.command != 'version',
         stream=console
     )
 
