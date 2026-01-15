@@ -1,8 +1,5 @@
 import argparse
-
-from .command import generate
-from .help_text import MUTUALLY_EXCLUSIVE, USAGE_TEXT, show_help
-
+from makefile_generator.commands import mkgen_version, generate
 
 def _set_default_system() -> str:
     import platform
@@ -13,13 +10,17 @@ def _set_default_system() -> str:
         return platform.system().lower()
 
 
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="A simple python tool to generate C/C++ makefiles", prog="mkgen", add_help=False)
     parser.add_argument(
         '-h', '--help',
         action='store_true',
-        help='Show help'
+        help='Show this message then exits'
+    )
+    parser.add_argument(
+        '-v', '--version',
+        action='store_true',
+        help='Show version'
     )
     subparsers = parser.add_subparsers(dest='command')
 
@@ -72,23 +73,19 @@ def parse_args() -> argparse.Namespace:
         help='Show help'
     )
     generate_parser.set_defaults(func=generate)
+
+    version_parser = subparsers.add_parser('version')
+    version_parser.set_defaults(func=mkgen_version)
+
     args = parser.parse_args()
+    
+    return args
 
-    if args.command:
-        #FIXME: fix this (if-else) if i ever add other commands
-        if args.command == 'generate':
-            if args.help:
-                show_help()
-
-            if (args.cross_platform and args.target_system is not None):
-                show_help(MUTUALLY_EXCLUSIVE)
-
-            if args.cross_platform:
-                args.target_system = None
-            elif args.target_system is None:
-                args.target_system = _set_default_system()
-    else:
-        show_help(USAGE_TEXT)
-
-
+def normalize_args(args: argparse.Namespace) -> argparse.Namespace :
+    if args.command == "generate":
+        if args.cross_platform:
+            args.target_system = None
+        elif args.target_system is None:
+            args.target_system = _set_default_system()
+        
     return args
