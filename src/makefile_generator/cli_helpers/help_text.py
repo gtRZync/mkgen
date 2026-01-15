@@ -1,6 +1,3 @@
-import sys
-from typing import Protocol, TypeVar
-
 HELP_TEXT = '''
 usage: mkgen generate [-h] [target_system] [--cross-platform]
                       [-l LANG] [-c COMPILER] [-std STANDARD] [--use-gui-lib]
@@ -81,15 +78,3 @@ Choose either:
   - the --cross-platform option, or
   - nothing (defaults to your current system)
 '''
-
-
-_T = TypeVar('_T', contravariant=True)
-
-class SupportsWrite(Protocol[_T]):
-    def write(self, s: _T, /) -> object:
-        ...
-
-def show_text(_text: str,*, file: SupportsWrite[str] | None = None):
-    print(_text, file=file)
-    code = 1 if file else 0
-    sys.exit(code)
