@@ -1,5 +1,7 @@
 import argparse
-from makefile_generator.commands import mkgen_version, generate
+
+from makefile_generator.commands import generate, mkgen_version
+
 
 def _set_default_system() -> str:
     import platform
@@ -78,14 +80,21 @@ def parse_args() -> argparse.Namespace:
     version_parser.set_defaults(func=mkgen_version)
 
     args = parser.parse_args()
-    
+
     return args
 
-def normalize_args(args: argparse.Namespace) -> argparse.Namespace :
+def normalize_target_system(args: argparse.Namespace) -> argparse.Namespace :
     if args.command == "generate":
+        if (args.cross_platform and args.target_system is not None):
+            import sys
+    
+            from makefile_generator.cli_helpers.help_text import MUTUALLY_EXCLUSIVE
+            from makefile_generator.utils.display_utils import show_text
+            show_text(MUTUALLY_EXCLUSIVE, file=sys.stderr)
+
         if args.cross_platform:
             args.target_system = None
         elif args.target_system is None:
             args.target_system = _set_default_system()
-        
+
     return args

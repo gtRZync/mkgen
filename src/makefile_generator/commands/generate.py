@@ -205,11 +205,6 @@ def generate(args: argparse.Namespace) -> None:
         from makefile_generator.utils.display_utils import show_text
         show_text(HELP_TEXT)
     
-    if (args.cross_platform and args.target_system is not None):
-        from makefile_generator.cli_helpers.help_text import MUTUALLY_EXCLUSIVE
-        from makefile_generator.utils.display_utils import show_text
-        show_text(MUTUALLY_EXCLUSIVE, file=sys.stderr)
-    
     if not is_target_correct(args):
         _target_err()
     #TODO: add folders check
