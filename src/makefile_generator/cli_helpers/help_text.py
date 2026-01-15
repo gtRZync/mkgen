@@ -1,6 +1,5 @@
 import sys
-
-from makefile_generator import __build__, __version__, __platform__
+from typing import Protocol, TypeVar
 
 HELP_TEXT = '''
 usage: mkgen generate [-h] [target_system] [--cross-platform]
@@ -71,6 +70,7 @@ Options:
     -h, --help                      Show this help message and exit
 """
 
+
 MUTUALLY_EXCLUSIVE = '''
 usage: mkgen generate [-h] [target_system] [--cross-platform]
                       [-l LANG] [-c COMPILER] [-std STANDARD] [--use-gui-lib]
@@ -82,8 +82,14 @@ Choose either:
   - nothing (defaults to your current system)
 '''
 
-VERSION_TEXT = f'mkgen version {__version__}.{__platform__}.{__build__}'
 
-def show_help(help_text: str = HELP_TEXT):
-    print(help_text)
-    sys.exit(0)
+_T = TypeVar('_T', contravariant=True)
+
+class SupportsWrite(Protocol[_T]):
+    def write(self, s: _T, /) -> object:
+        ...
+
+def show_text(_text: str,*, file: SupportsWrite[str] | None = None):
+    print(_text, file=file)
+    code = 1 if file else 0
+    sys.exit(code)
