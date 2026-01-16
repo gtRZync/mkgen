@@ -65,7 +65,7 @@ It exists because *I needed it*.
 
 ## Requirements
 
-* Python 3.x
+* Python 3.10+
 * A C compiler (`gcc`, `clang`, etc.)
 * or a C++ compiler (`g++`, `clang++`)
 
@@ -109,7 +109,57 @@ mkgen generate --cross-platform
 
 4. Follow the interactive menu and boom a Makefile will appear at the specified output path or current working directory
 
-## Arguments
+
+## Commands
+
+### `generate`
+
+Generate a Makefile based on the current project structure and selected options.
+
+This command analyzes the project directory, applies heuristics to detect source/header/output/object folders, and generates the appropriate Makefile.
+
+**Usage**
+
+```bash
+mkgen generate [options]
+```
+
+> [!CAUTION]
+> **Folder scanning is not functional yet**
+
+> [!NOTE]
+> Folder scanning is not functional yet 
+> Folder scanning is non-recursive by default.
+> GUI-related flags affect only compilation and linking flags in the generated Makefile.
+
+---
+
+### `version`
+
+Display the current version of the tool.
+
+**Usage**
+
+```bash
+mkgen version
+```
+
+> [!NOTE]
+> This command does not accept any additional arguments.
+> The version command is equivalent to running `mkgen --version`.
+> Useful for debugging, bug reports, and verifying installed versions.
+
+---
+
+## Global options
+
+| Flag            | Description                         |
+|-----------------|-------------------------------------|
+| `-v`, `--version` | Print version information and exit |
+| `-h`, `--help`    | Show help and exit                 |
+
+
+## Arguments for `generate`
 
 ### Optional positional argument
 | Argument          | Description                                                                                 | Default |
@@ -124,7 +174,7 @@ mkgen generate --cross-platform
 | `-l`, `--lang`       | Specify the programming language to use. Supported: `C` or `C++`.                                                                                                                                                                                 | None     |
 | `-c`, `--compiler`   | Specify the compiler to use. This value will be written into the generated Makefile.                                                                                                                                                              | None     |
 | `-std`, `--standard` | Specify the language standard to use (e.g., c11, c17, c++11, c++17, c++20). Added to compiler flags in the Makefile.                                                                                                                              | None     |
-| `--gui[=BACKEND]`    | Include GUI library flags in compilation. Optional `BACKEND` can be provided (e.g., `sdl2`, `raylib`). <br>• If no value is given and `--no-gui` is not used, the user is prompted to select a backend. <br>• Mutually exclusive with `--no-gui`. | None     |
+| `--gui`    | Include GUI library flags in the Makefile. Supported backend: `SDL2`, `SFML`, `RAYLIB`. <br>•If `--gui` is not specified and `--no-gui` is not used, the user is prompted to select a backend. <br>• Mutually exclusive with `--no-gui`. | None     |
 | `--no-gui`           | Disable any GUI backend prompts. Mutually exclusive with `--gui`.                                                                                                                                                                        | Disabled |
 | `-o`, `--output`     | Specify the output directory for the Makefile. Defaults to current working directory if path is invalid.                                                                                                                                          | `./`     |
 | `--binary-name`      | Specify the name of the output binary/executable. The Makefile will use this name for the compiled program.                                                                                                                                       | None     |
