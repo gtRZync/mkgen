@@ -36,6 +36,12 @@ COMPILERS = [
     "icpx"      # Intel oneAPI C++ Compiler
 ]
 
+VALID_GUI_BACKEND = [
+    'sfml',
+    'sdl2',
+    'raylib'
+]
+
 SFML_FLAGS = {
     'win32': '-lsfml-graphics -lsfml-window -lsfml-audio -lsfml-system',
     'unix': '$(shell pkg-config --libs sfml-graphics)'
