@@ -85,7 +85,7 @@ def _generate_makefile(
                 TextColumn('[progress.description]{task.description}'),
                 transient=True
             ) as progress:
-                with open(outdir , 'wt') as file:
+                with outdir.open('wt') as file:
                     task = progress.add_task(description=f'[bold magenta]{progress_description}')
                     file.write(makefile)
                     # File creation is extremely fast, so I'm faking a spinner for UX purposes.
@@ -136,21 +136,21 @@ def _choose_standard(langage: str) -> str:
 def _chose_binary_name() -> str :
     return get_user_input("Enter the output binary file's name", console)
 
-def get_key_for(target_system: str, /):
+def _get_key_for(target_system: str, /):
     if target_system == 'windows':
         return 'win32'
     else:
         return 'unix'
-
-def _choose_gui_lib(data: dict[str, dict[str, str] | str | bool], args: argparse.Namespace) -> None:
-    gui_libs = ['sdl2', 'sfml', 'raylib']
-    lib = single_choice('Chose your graphical library of use', gui_libs, console)
+    
+def _set_gui_lib_flags(data: dict[str, dict[str, str] | str | bool], args: argparse.Namespace, backend: str | None = None) -> None:
+    if backend is None:
+        backend = args.gui
     if args.cross_platform:
-        if lib == 'sfml':
+        if backend == 'sfml':
             data['gui_lib_flags'] = SFML_FLAGS['win32']
             data['unix_gui_lib_flags'] = SFML_FLAGS['unix']
             data['gui_lib_cflags'] = SFML_CFLAGS
-        elif lib == 'sdl2':
+        elif backend == 'sdl2':
             data['gui_lib_flags'] = SDL2_FLAGS['win32']
             data['unix_gui_lib_flags'] = SDL2_FLAGS['unix']
             data['gui_lib_cflags'] = SDL2_CFLAGS
@@ -159,16 +159,21 @@ def _choose_gui_lib(data: dict[str, dict[str, str] | str | bool], args: argparse
             data['unix_gui_lib_flags'] = RAYLIB_FLAGS['unix']
             data['gui_lib_cflags'] = RAYLIB_CFLAGS
     else:
-        if lib == 'sfml':
-            data['gui_lib_flags'] = SFML_FLAGS[get_key_for(args.target_system)]
+        if backend == 'sfml':
+            data['gui_lib_flags'] = SFML_FLAGS[_get_key_for(args.target_system)]
             data['gui_lib_cflags'] = SFML_CFLAGS
-        elif lib == 'sdl2':
-            data['gui_lib_flags'] = SDL2_FLAGS[get_key_for(args.target_system)]
+        elif backend == 'sdl2':
+            data['gui_lib_flags'] = SDL2_FLAGS[_get_key_for(args.target_system)]
             data['gui_lib_cflags'] = SDL2_CFLAGS
         else:
-            data['gui_lib_flags'] = RAYLIB_FLAGS[get_key_for(args.target_system)]
+            data['gui_lib_flags'] = RAYLIB_FLAGS[_get_key_for(args.target_system)]
             data['gui_lib_cflags'] = RAYLIB_CFLAGS
 
+
+def _choose_gui_lib(data: dict[str, dict[str, str] | str | bool], args: argparse.Namespace) -> None:
+    gui_libs = ['sdl2', 'sfml', 'raylib']
+    lib = single_choice('Chose your graphical library of use', gui_libs, console)
+    _set_gui_lib_flags(data, args, lib)
 
 def _prompt_gui_lib_usage(data:  dict[str, dict[str, str] | str | bool], args: argparse.Namespace) -> None:
     choice = single_choice('Do you intend on using a gui libray?', ['yes', 'no'], console)
@@ -201,9 +206,9 @@ def _target_err():
 
 def generate(args: argparse.Namespace) -> None:
     if args.help:
-        from makefile_generator.cli_helpers.help_text import HELP_TEXT
+        from makefile_generator.cli_helpers.help_text import GENERATE_HELP_TEXT
         from makefile_generator.utils.display_utils import show_text
-        show_text(HELP_TEXT)
+        show_text(GENERATE_HELP_TEXT)
     
     if not is_target_correct(args):
         _target_err()
@@ -211,9 +216,9 @@ def generate(args: argparse.Namespace) -> None:
     langage = None
     data = {
         'compiler' : {
-         'var' : '',
-         'name' : '',
-         'std' : ''
+            'var' : '',
+            'name' : '',
+            'std' : ''
         },
         'directories' : {
             'bin' : 'bin',
@@ -262,10 +267,9 @@ def generate(args: argparse.Namespace) -> None:
         data['output_file'] = args.binary_name
     else:
         data['output_file'] = _chose_binary_name()
-    if args.use_gui_lib:
-        data['use_gui_lib'] = True
-        _choose_gui_lib(data, args)
-    else:
+    if args.gui is None:
         _prompt_gui_lib_usage(data, args)
+    elif isinstance(args.gui, str):
+        _set_gui_lib_flags(data, args)
 
-    _generate_makefile(data, args, _create_progress_description(langage, args.target_system)) #type: ignore
+    _generate_makefile(data, args, progress_description=_create_progress_description(langage, args.target_system)) #type: ignore
