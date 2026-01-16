@@ -1,8 +1,10 @@
-HELP_TEXT = '''
-usage: mkgen generate [-h] [target_system] [--cross-platform]
-                      [-l LANG] [-c COMPILER] [-std STANDARD] [--use-gui-lib]
-                      [--binary-name BINARY_NAME] [-o OUTPUT]
+GENERATE_USAGE_TEXT = '''\
+mkgen generate [target_system] [--cross-platform] [-l LANG] 
+                      [-c COMPILER] [-std STANDARD] [--gui GUI | --no-gui] 
+                      [--binary-name BINARY_NAME] [-o OUTPUT] [-h]
+'''
 
+GENERATE_HELP_TEXT = 'usage: ' +GENERATE_USAGE_TEXT + '''
 Generate a Makefile for your C/C++ project with customizable options.
 
 positional arguments:
@@ -22,7 +24,11 @@ options:
 
   -std, --standard STANDARD     Specify the language standard (e.g., c11, c++17, c++20)
 
-  --use-gui-lib                 Wether or not to include gui lib flags and or --cflags
+  --gui GUI                     Enable GUI backend. Optionally chose the backend.
+                                ⚠ Cannot be used with --no-gui
+  
+  --no-gui                      Disable GUI prompt.
+                                ⚠ Mutually exclusive with --gui
 
   --binary-name BINARY_NAME     Name of the output binary/executable.
 
@@ -46,7 +52,7 @@ Examples:
       mkgen generate -l C++ -c g++ -std c++17 -o build/
 
   Generate a Makefile for a cross-platform project including GUI flags:
-      mkgen generate --cross-platform --use-gui-lib --binary-name my_app
+      mkgen generate --cross-platform --gui=sdl2 --binary-name my_app
 
   Generate a Makefile for Linux specifically:
       mkgen generate linux --binary-name my_app
@@ -57,24 +63,22 @@ Examples:
 '''
 
 
-USAGE_TEXT = """
-Usage: mkgen <command> [OPTIONS]
+TOP_LEVEL_HELP_TEXT = '''\
+usage: mkgen <command> [OPTIONS]
 
 Commands:
-  generate     Generate a C/C++ Makefile for your project
+  generate      Generate a C/C++ Makefile for your project
+  version       Show mkgen's current version
 
 Options:
     -h, --help                      Show this help message and exit
-"""
+'''
 
 
-MUTUALLY_EXCLUSIVE = '''
-usage: mkgen generate [-h] [target_system] [--cross-platform]
-                      [-l LANG] [-c COMPILER] [-std STANDARD] [--use-gui-lib]
-                      [--binary-name BINARY_NAME] [-o OUTPUT]
+MUTUALLY_EXCLUSIVE = 'usage: ' + GENERATE_USAGE_TEXT + '''
 mkgen generate: error: Cannot specify both a target_system and --cross-platform.
 Choose either:
-  - a specific target_system,
+  - a specific target_system (e.g windows, linux...etc),
   - the --cross-platform option, or
   - nothing (defaults to your current system)
 '''
