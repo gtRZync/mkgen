@@ -72,6 +72,7 @@ Commands:
 
 Options:
     -h, --help                      Show this help message and exit
+    -v, --version                   Show mkgen's current version
 '''
 
 

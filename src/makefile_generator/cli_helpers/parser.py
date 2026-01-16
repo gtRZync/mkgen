@@ -1,5 +1,4 @@
 import argparse
-import sys
 
 from makefile_generator.commands import generate, mkgen_version
 from makefile_generator.config import VALID_GUI_BACKEND
@@ -92,7 +91,7 @@ def parse_args() -> argparse.Namespace:
     )
     generate_parser.set_defaults(func=generate)
 
-    version_parser = subparsers.add_parser('version', help="show mkgen's current version", description="Show mkgen's current version")
+    version_parser = subparsers.add_parser('version', description="Show mkgen's current version", add_help=False)
     version_parser.set_defaults(func=mkgen_version)
 
     args, rest = parser.parse_known_args()
