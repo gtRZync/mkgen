@@ -40,12 +40,14 @@ def show_ascii_art(show: bool, stream: Console):
 
 def handle_no_command(args: argparse.Namespace) -> None | NoReturn:
     if not args.command:
-        from makefile_generator.cli_helpers.help_text import USAGE_TEXT
+        from makefile_generator.cli_helpers.help_text import TOP_LEVEL_HELP_TEXT
         from makefile_generator.commands.version import mkgen_version
         from makefile_generator.utils.display_utils import show_text
         if args.version:
             mkgen_version(args)
-        show_text(USAGE_TEXT, file=sys.stderr)
+        if args.help:
+            show_text(TOP_LEVEL_HELP_TEXT)
+        show_text(TOP_LEVEL_HELP_TEXT, file=sys.stderr)
 
 
 def main() -> None:
