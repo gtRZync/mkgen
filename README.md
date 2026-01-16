@@ -117,17 +117,19 @@ mkgen generate --cross-platform
 | `target_system`   | Specify the system/OS for which the Makefile should be generated (e.g., `linux`, `windows`, `macos`). ⚠️ Mutually exclusive with `--cross-platform`. | Current system/OS |
 
 ### Optional keyword arguments (flags)
-| Argument                     | Description                                                                                                                   | Default |
-|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------|----------------|
-| `--cross-platform`            | Generate a Makefile that works across multiple systems. ⚠️ Cannot be used with `target_system`.                                 | Disabled |
-| `-l`, `--lang`                | Specify the programming language to use. Supported: `C` or `C++`.                                                             | None           |
-| `-c`, `--compiler`            | Specify the compiler to use. This value will be written into the generated Makefile.                                           | None           |
-| `-std`, `--standard`          | Specify the language standard to use (e.g., c11, c17, c++11, c++17, c++20). Added to compiler flags in the Makefile.          | None           |
-| `--use-gui-lib`               | Include GUI library flags in compilation. Supported libs: `SDL2`, `SFML`, `RAYLIB`.                                           | Disabled       |
-| `-o`, `--output`              | Specify the output directory for the Makefile. Defaults to current working directory if path is invalid.                       | `./`           |
-| `--binary-name`               | Specify the name of the output binary/executable. The Makefile will use this name for the compiled program.                     | None           |
 
+| Argument             | Description                                                                                                                                                                                                                       | Default  |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `--cross-platform`   | Generate a Makefile that works across multiple systems. ⚠️ Cannot be used with `target_system`.                                                                                                                                   | Disabled |
+| `-l`, `--lang`       | Specify the programming language to use. Supported: `C` or `C++`.                                                                                                                                                                 | None     |
+| `-c`, `--compiler`   | Specify the compiler to use. This value will be written into the generated Makefile.                                                                                                                                              | None     |
+| `-std`, `--standard` | Specify the language standard to use (e.g., c11, c17, c++11, c++17, c++20). Added to compiler flags in the Makefile.                                                                                                              | None     |
+| `--gui[=BACKEND]`    | Include GUI library flags in compilation. Optional `BACKEND` can be provided (e.g., `sdl2`, `raylib`, `sfml`). <br>• If no value is given, the user is prompted to select a backend. <br>• Only **one GUI option** can be used at a time. | None |
+| `--no-gui`           | Disable any GUI backend prompts. Mutually exclusive with `--gui`.                                                                                                                                                        | Disabled |
+| `-o`, `--output`     | Specify the output directory for the Makefile. Defaults to current working directory if path is invalid.                                                                                                                          | `./`     |
+| `--binary-name`      | Specify the name of the output binary/executable. The Makefile will use this name for the compiled program.                                                                                                                       | None     |
 
+---
 
 ## Usage examples:
 
@@ -146,7 +148,15 @@ mkgen generate linux
 ### Using optional flags
 
 ```sh
-mkgen generate linux --lang C++ -c clang++ -std c++17 --use-gui-lib -o ./build --binary-name my_app
+mkgen generate linux --lang C++ -c clang++ -std c++17 --gui=SDL2 -o ./build --binary-name my_app
+```
+
+```sh
+mkgen generate -l C++ --gui raylib 
+```
+
+```sh
+mkgen generate macos -l C -std c23 -c clang --no-gui  
 ```
 
 ### Using cross-platform mode instead of target_system
