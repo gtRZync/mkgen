@@ -59,7 +59,6 @@ def main() -> None:
     args = normalize_target_system(args)
 
     handle_no_command(args)
-    print(args)
 
     show_ascii_art(
         show=args.command != 'version',
