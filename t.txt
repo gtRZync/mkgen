@@ -1,9 +1,0 @@
-
-Usage: mkgen <command> [OPTIONS]
-
-Commands:
-  generate     Generate a C/C++ Makefile for your project
-
-Options:
-    -h, --help                      Show this help message and exit
-
