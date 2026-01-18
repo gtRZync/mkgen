@@ -128,8 +128,7 @@ mkgen generate [options]
 > **Folder scanning is not functional yet**
 
 > [!NOTE]
-> Folder scanning is not functional yet 
-> Folder scanning is non-recursive by default.
+> Folder scanning is non-recursive by default.<br>
 > GUI-related flags affect only compilation and linking flags in the generated Makefile.
 
 ---
@@ -145,8 +144,8 @@ mkgen version
 ```
 
 > [!NOTE]
-> This command does not accept any additional arguments.
-> The version command is equivalent to running `mkgen --version`.
+> This command does not accept any additional arguments.<br>
+> The version command is equivalent to running `mkgen --version`.<br>
 > Useful for debugging, bug reports, and verifying installed versions.
 
 ---
