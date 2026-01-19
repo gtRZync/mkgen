@@ -143,6 +143,7 @@ def _get_key_for(target_system: str, /):
         return 'unix'
     
 def _set_gui_lib_flags(data: dict[str, dict[str, str] | str | bool], args: argparse.Namespace, backend: str | None = None) -> None:
+    data['use_gui_lib'] = True
     if backend is None:
         backend = args.gui
     if args.cross_platform:
@@ -178,7 +179,6 @@ def _choose_gui_lib(data: dict[str, dict[str, str] | str | bool], args: argparse
 def _prompt_gui_lib_usage(data:  dict[str, dict[str, str] | str | bool], args: argparse.Namespace) -> None:
     choice = single_choice('Do you intend on using a gui libray?', ['yes', 'no'], console)
     if choice == 'yes':
-        data['use_gui_lib'] = True
         _choose_gui_lib(data, args)
 
 def is_target_correct(args: argparse.Namespace) -> bool:
