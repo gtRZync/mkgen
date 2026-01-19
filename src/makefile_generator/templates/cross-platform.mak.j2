@@ -42,7 +42,6 @@ OUT := $(BIN_DIR)/{{ output_file }}
 
 ifeq ($(OS), Windows_NT)
     BIN_DIR := $(BUILD_DIR)\{{ directories.bin }}
-    OUT := $(BIN_DIR)\{{output_file}}.exe
     {% if use_gui_lib %}
     LIBS = {{ gui_lib_flags }}
     {% endif %}
