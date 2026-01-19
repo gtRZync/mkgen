@@ -35,11 +35,11 @@ else
     Q := @
 endif
 
-BIN_DIR := {{ directories.bin }}
-SOURCE_DIR := {{ directories.src | default('.') }}
-BUILD_DIR := {{ directories.build }}
+SOURCE_DIR := {{ directories.src }}
 INCLUDE_DIR := {{ directories.include }}
-OUT := $(BIN_DIR)/{{output_file}}.exe
+BUILD_DIR := {{ directories.build }}
+BIN_DIR := $(BUILD_DIR)\{{ directories.bin }}
+OUT := $(BIN_DIR)\{{output_file}}.exe
 
 ENSURE_BIN := if not exist $(BIN_DIR) mkdir $(BIN_DIR)
 ENSURE_BUILD := if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)

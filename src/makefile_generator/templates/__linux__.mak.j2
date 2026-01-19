@@ -37,10 +37,10 @@ else
     Q := @
 endif
 
-BIN_DIR := {{ directories.bin }}
-SOURCE_DIR := {{ directories.src | default('.') }}
-BUILD_DIR := {{ directories.build }}
+SOURCE_DIR := {{ directories.src }}
 INCLUDE_DIR := {{ directories.include }}
+BUILD_DIR := {{ directories.build }}
+BIN_DIR := $(BUILD_DIR)/{{ directories.bin }}
 OUT := $(BIN_DIR)/{{ output_file }}
 
 SRCS := $(wildcard $(SOURCE_DIR)/*{{src_ext}})
