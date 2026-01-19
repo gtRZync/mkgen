@@ -65,7 +65,6 @@ def parse_args() -> argparse.Namespace:
         dest='gui',
         type=_gui_type,
         default=None,
-        const=None,
         help='Enable GUI backend. Optionally chose the backend.'
     )
     backend_group.add_argument(
@@ -106,7 +105,7 @@ def parse_args() -> argparse.Namespace:
 
 def normalize_target_system(args: argparse.Namespace) -> argparse.Namespace :
     if args.command == "generate":
-        if (args.cross_platform and args.target_system is not None):
+        if (args.cross_platform and hasattr(args, 'target_system')):
             import sys
     
             from makefile_generator.cli_helpers.help_text import MUTUALLY_EXCLUSIVE
