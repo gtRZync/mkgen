@@ -5,10 +5,10 @@ from rich.prompt import Prompt
 from rich.table import Table
 from rich.text import Text
 
-def single_choice(prompt: str, options: list[str], stream: Console) -> str:
+def single_choice(prompt: str, options: list[str], right_col_header: str, stream: Console) -> str:
     table = Table(title=f"[bold yellow]{prompt}[/bold yellow]", title_style='bold magenta', show_lines=True)
     table.add_column("Option", justify="center", style="bold cyan")
-    table.add_column("File Type", justify="center", style="bold yellow")
+    table.add_column(right_col_header, justify="center", style="bold yellow")
 
     for i, opt in enumerate(options, start=1):
         table.add_row(str(i), opt)
@@ -18,7 +18,7 @@ def single_choice(prompt: str, options: list[str], stream: Console) -> str:
     choice = Prompt.ask("[bold green]Enter the number of your choice[/bold green]", choices=[str(i) for i in range(1, len(options) + 1)])
     return options[int(choice) - 1]
 
-def get_user_input(prompt_text: str, stream: Console) -> str:
+def get_user_input(prompt_text: str, stream: Console, default: str = 'default') -> str:
     styled_prompt = Text(prompt_text, style="bold white on blue", justify="center")
 
     panel = Panel(
@@ -30,5 +30,9 @@ def get_user_input(prompt_text: str, stream: Console) -> str:
     )
     stream.print(panel)
 
-    user_input = Prompt.ask("[bold cyan]→ Enter here[/bold cyan]")
+    user_input = Prompt.ask(
+        "[bold cyan]→ Enter here[/bold cyan]" + (f" (default: {default})" if default else ""), 
+        default=default, 
+        show_default=False
+    )
     return user_input
