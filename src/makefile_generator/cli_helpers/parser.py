@@ -1,8 +1,8 @@
 import argparse
 
 from makefile_generator.commands import generate, mkgen_version
-from makefile_generator.config import VALID_GUI_BACKEND
 from makefile_generator.cli_helpers.help_text import GENERATE_USAGE_TEXT
+from ._actions import LanguageAction
 
 def _set_default_system() -> str:
     import platform
@@ -11,12 +11,7 @@ def _set_default_system() -> str:
         return 'mac'
     else:
         return platform.system().lower()
-
-def _gui_type(value: str) -> str:
-    if value.lower() not in VALID_GUI_BACKEND:
-        raise argparse.ArgumentTypeError(f'Invalid GUI backend: {value!r}')    
-    return value.lower()
-
+     
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="A simple python tool to generate C/C++ makefiles", prog="mkgen", add_help=False)
     parser.add_argument(
@@ -47,23 +42,27 @@ def parse_args() -> argparse.Namespace:
     )
     generate_parser.add_argument(
         '-l', '--lang',
-        type=str,
+        type=str.upper,
+        choices=['C++', 'C'],
         help='Specify the programming language'
     )
     generate_parser.add_argument(
         '-c', '--compiler',
         type=str,
+        action=LanguageAction,
         help='Specify the compiler to use in the Makefile'
     )
     generate_parser.add_argument(
         '-std', '--standard',
         type=str,
+        action=LanguageAction,
         help='Specify the language standard (e.g., c11, c++17, c++20)'
     )
     backend_group.add_argument(
         '--gui',
         dest='gui',
-        type=_gui_type,
+        type=str.lower,
+        choices=['sfml', 'sdl2', 'raylib'],
         default=None,
         help='Enable GUI backend. Optionally chose the backend.'
     )

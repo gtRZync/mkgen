@@ -1,5 +1,5 @@
 GENERATE_USAGE_TEXT = '''\
-mkgen generate [target_system] [--cross-platform] [-l LANG] 
+mkgen generate [target_system] [--cross-platform]  -l {C++,C}
                       [-c COMPILER] [-std STANDARD] [--gui GUI | --no-gui] 
                       [--binary-name BINARY_NAME] [-o OUTPUT] [-h]
 '''
