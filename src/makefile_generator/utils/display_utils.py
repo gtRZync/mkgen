@@ -1,5 +1,5 @@
 import sys
-from typing import Protocol, TypeVar
+from typing import NoReturn, Protocol, TypeAlias, TypeVar
 
 from rich.align import Align, AlignMethod
 from rich.console import Console, RenderableType
@@ -19,12 +19,12 @@ def display_panel_text(
 
 
 _T = TypeVar('_T', contravariant=True)
+_ExitCode: TypeAlias = str | int | None
 
 class SupportsWrite(Protocol[_T]):
     def write(self, s: _T, /) -> object:
         ...
 
-def show_text(_text: str,*, file: SupportsWrite[str] | None = None):
+def show_text(_text: str,*, file: SupportsWrite[str] | None = None, code: _ExitCode = None) -> NoReturn:
     print(_text, file=file)
-    code = 1 if file else 0
     sys.exit(code)

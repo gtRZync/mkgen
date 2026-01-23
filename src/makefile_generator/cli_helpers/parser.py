@@ -109,7 +109,7 @@ def normalize_target_system(args: argparse.Namespace) -> argparse.Namespace :
     
             from makefile_generator.cli_helpers.help_text import MUTUALLY_EXCLUSIVE
             from makefile_generator.utils.display_utils import show_text
-            show_text(MUTUALLY_EXCLUSIVE, file=sys.stderr)
+            show_text(MUTUALLY_EXCLUSIVE, file=sys.stderr, code=2)
 
         if args.cross_platform:
             args.target_system = None

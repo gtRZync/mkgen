@@ -47,7 +47,7 @@ def handle_no_command(args: argparse.Namespace) -> None | NoReturn:
             mkgen_version(args)
         if args.help:
             show_text(TOP_LEVEL_HELP_TEXT)
-        show_text(TOP_LEVEL_HELP_TEXT, file=sys.stderr)
+        show_text(TOP_LEVEL_HELP_TEXT, file=sys.stderr, code=1)
 
 
 def main() -> None:
