@@ -24,22 +24,19 @@ C_STANDARDS = [
     "C99",
     "C11",
     "C17",
+    "C18",
     "C23"
 ]
-COMPILERS = [
-    "gcc",      # GNU C Compiler
-    "g++",      # GNU C++ Compiler
-    "clang",    # Clang C Compiler
-    "clang++",  # Clang C++ Compiler
-    "cl",       # MSVC (Microsoft Visual C++)
-    "icx",      # Intel oneAPI C Compiler
-    "icpx"      # Intel oneAPI C++ Compiler
+CPP_COMPILERS = [
+    'g++',     
+    'clang++', 
+    'msvc'
 ]
 
-VALID_GUI_BACKEND = [
-    'sfml',
-    'sdl2',
-    'raylib'
+C_COMPILERS = [
+    'gcc',
+    'clang',
+    'msvc'
 ]
 
 SFML_FLAGS = {

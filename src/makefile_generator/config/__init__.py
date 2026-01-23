@@ -1,6 +1,7 @@
 from .constants import (
+    C_COMPILERS,
     C_STANDARDS,
-    COMPILERS,
+    CPP_COMPILERS,
     CPP_STANDARDS,
     RAYLIB_CFLAGS,
     RAYLIB_FLAGS,
@@ -10,7 +11,6 @@ from .constants import (
     SFML_FLAGS,
     TEMPLATES,
     TEMPLATES_DIR,
-    VALID_GUI_BACKEND
 )
 
 __all__ = [
@@ -22,8 +22,8 @@ __all__ = [
     'RAYLIB_FLAGS',
     'CPP_STANDARDS',
     'C_STANDARDS',
-    'COMPILERS',
+    'CPP_COMPILERS',
+    'C_COMPILERS',
     'TEMPLATES_DIR',
-    'TEMPLATES',
-    'VALID_GUI_BACKEND'
+    'TEMPLATES'
 ]
