@@ -10,8 +10,9 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.text import Text
 
 from makefile_generator.config import (
+    C_COMPILERS,
     C_STANDARDS,
-    COMPILERS,
+    CPP_COMPILERS,
     CPP_STANDARDS,
     RAYLIB_CFLAGS,
     RAYLIB_FLAGS,
@@ -66,10 +67,10 @@ def _generate_makefile(
     if template:
         makefile = template.render(data)
         outdir = Path(args.output) if args.output else Path.cwd()
-        #TODO: add check if not a dir use Path.cwd()
+        #TODO: add check if not a dir use Path.cwd() log
         outdir = outdir / 'Makefile'
         if outdir.exists(): #TODO: make overwrite better (maybe add path change..etc)
-            user_choice = single_choice('A Makefile already exists in output directory.\nDo you wanna overwrite it?', ['yes', 'no'], console)
+            user_choice = single_choice('A Makefile already exists in output directory.\nDo you wanna overwrite it?', ['yes', 'no'],'Answer',console)
             if user_choice == 'no':
                 display_panel_text(
                     '[yellow]Makefile generation skipped (existing file not overwritten)[/yellow]',
@@ -117,7 +118,7 @@ def _generate_makefile(
 
 def _choose_langage(data: dict) -> str:
     langs = ['c++', 'c']
-    choice = single_choice('Choose the Langage', langs, console)
+    choice = single_choice('Choose the Langage', langs,'Langages', console)
     if choice.lower() == 'c++':
         data['src_ext'] = '.cpp'
         data['compiler']['var'] = 'CXX'
@@ -126,22 +127,48 @@ def _choose_langage(data: dict) -> str:
         data['compiler']['var'] = 'CC'
     return choice
 
-def _choose_compiler() -> str:
-    return single_choice('Choose your compiler of use', COMPILERS, console)
+def _choose_compiler(langage: str) -> str:
+    return single_choice('Choose your compiler of use', C_COMPILERS if langage == 'c' else CPP_COMPILERS, right_col_header='Compilers', stream=console)
 
 def _choose_standard(langage: str) -> str:
     prompt = "Choose the compiler standard you wanna use"
-    return single_choice(prompt, C_STANDARDS, console) if langage.lower() == 'c' else single_choice(prompt, CPP_STANDARDS, console)
+    return single_choice(prompt, C_STANDARDS, 'Standards', console) if langage.lower() == 'c' else single_choice(prompt, CPP_STANDARDS, 'Standards', console)
+
+def _ensure_compatible_compiler_arg(*, arg: Literal['compiler', 'standard'], lang: Literal['c', 'c++'], value: str) -> str:
+    normalized_value = value.lower()
+    prompt = f'Error: invalid {arg} {value!r} for {lang.upper()}.\nSelect {lang.upper()} {arg}'
+    normalized_map = {
+        'compiler' : {
+            'c' : [s for s in C_COMPILERS],
+            'c++' : [s for s in CPP_COMPILERS]
+        },
+        'standard' : {
+            'c' : [s.lower() for s in C_STANDARDS],
+            'c++' : [s.lower() for s in CPP_STANDARDS]
+        }
+    }
+    if normalized_value not in normalized_map[arg][lang]:
+        normalized_value = single_choice(
+            prompt,
+            options=normalized_map[arg][lang],
+            right_col_header=arg,
+            stream=console
+        )
+    #msvc compiler normalization
+    if normalized_value == 'msvc':
+        normalized_value = 'cl'
+
+    return normalized_value
 
 def _chose_binary_name() -> str :
-    return get_user_input("Enter the output binary file's name", console)
+    return get_user_input("Enter the output binary file's name", console, default='main')
 
 def _get_key_for(target_system: str, /):
     if target_system == 'windows':
         return 'win32'
     else:
         return 'unix'
-    
+
 def _set_gui_lib_flags(data: dict[str, dict[str, str] | str | bool], args: argparse.Namespace, backend: str | None = None) -> None:
     data['use_gui_lib'] = True
     if backend is None:
@@ -173,11 +200,11 @@ def _set_gui_lib_flags(data: dict[str, dict[str, str] | str | bool], args: argpa
 
 def _choose_gui_lib(data: dict[str, dict[str, str] | str | bool], args: argparse.Namespace) -> None:
     gui_libs = ['sdl2', 'sfml', 'raylib']
-    lib = single_choice('Chose your graphical library of use', gui_libs, console)
+    lib = single_choice('Chose your graphical library of use', gui_libs, 'Backend',console)
     _set_gui_lib_flags(data, args, lib)
 
 def _prompt_gui_lib_usage(data:  dict[str, dict[str, str] | str | bool], args: argparse.Namespace) -> None:
-    choice = single_choice('Do you intend on using a gui libray?', ['yes', 'no'], console)
+    choice = single_choice('Do you intend on using a gui libray?', ['yes', 'no'], 'Answer', console)
     if choice == 'yes':
         _choose_gui_lib(data, args)
 
@@ -209,7 +236,7 @@ def generate(args: argparse.Namespace) -> None:
         from makefile_generator.cli_helpers.help_text import GENERATE_HELP_TEXT
         from makefile_generator.utils.display_utils import show_text
         show_text(GENERATE_HELP_TEXT)
-    
+
     if not is_target_correct(args):
         _target_err()
     #TODO: add folders check
@@ -246,27 +273,29 @@ def generate(args: argparse.Namespace) -> None:
     else:
         langage = _choose_langage(data)
 
-    if args.compiler and args.compiler.lower() in COMPILERS:
-        data['compiler']['name'] = args.compiler
+    if args.compiler:
+        data['compiler']['name'] = _ensure_compatible_compiler_arg(
+            arg='compiler',
+            lang=langage, #type: ignore
+            value=args.compiler,
+        )
     else:
-        data['compiler']['name'] = _choose_compiler()
+        data['compiler']['name'] = _choose_compiler(langage)
+
     if args.standard:
-        if langage.lower() == 'c':
-            if args.standard.upper() in C_STANDARDS or args.standard.lower() == 'c18':
-                data['compiler']['std'] = args.standard.lower()
-            else:
-                data['compiler']['std'] = _choose_standard(langage).lower()
-        else:
-            if args.standard.upper() in CPP_STANDARDS:
-                data['compiler']['std'] = args.standard.lower()
-            else:
-                data['compiler']['std'] = _choose_standard(langage).lower()
+        data['compiler']['std'] = _ensure_compatible_compiler_arg(
+            arg='standard',
+            lang=langage, #type: ignore
+            value=args.standard,
+        )
     else:
         data['compiler']['std'] = _choose_standard(langage).lower()
+
     if args.binary_name:
         data['output_file'] = args.binary_name
     else:
         data['output_file'] = _chose_binary_name()
+
     if args.gui is None:
         _prompt_gui_lib_usage(data, args)
     elif isinstance(args.gui, str):
