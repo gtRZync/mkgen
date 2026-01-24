@@ -41,6 +41,8 @@ BIN_DIR := $(BUILD_DIR)/{{ directories.bin }}
 OUT := $(BIN_DIR)/{{ output_file }}
 
 ifeq ($(OS), Windows_NT)
+    SHELL := cmd.exe
+    .SHELLFLAGS := /C
     BIN_DIR := $(BUILD_DIR)\{{ directories.bin }}
     {% if use_gui_lib %}
     LIBS = {{ gui_lib_flags }}

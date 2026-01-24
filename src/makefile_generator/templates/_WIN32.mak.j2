@@ -13,6 +13,8 @@
 # --------------------------------------------------
 
 .PHONY : clean run $(BIN_DIR) $(BUILD_DIR) all bear
+SHELL := cmd.exe
+.SHELLFLAGS := /C
 
 MODE ?= release
 VERBOSE ?= 0
