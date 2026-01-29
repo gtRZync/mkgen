@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 from typing import Literal
 
+import questionary
 from jinja2 import Environment, FileSystemLoader
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -24,7 +25,7 @@ from makefile_generator.config import (
     TEMPLATES_DIR,
 )
 from makefile_generator.utils.display_utils import display_panel_text
-from makefile_generator.utils.prompt_utils import get_user_input, single_choice
+from makefile_generator.utils.prompt_utils import questionary_select, DEFAULT_STYLE
 
 console = Console()
 console_err = Console(stderr=True)
@@ -45,6 +46,34 @@ def _create_progress_description(
         description = f'Generating your Makefile for {system.capitalize()}{end}'
 
     return description
+    
+def _rename() -> str:
+    def validate_name(name) -> bool:
+        if name:
+            return True
+        return False
+    filename: str = questionary.text(
+        'Enter new filename: ', 
+        style=DEFAULT_STYLE,
+        validate=validate_name, 
+    ).unsafe_ask()
+    return filename
+    
+def _new_path() -> Path:
+    def validate_path(path) -> bool:
+        if path:
+            path = Path(path)
+            if path.resolve().exists():
+                return True
+        return False
+    path = questionary.path(
+        'Select or enter a directory to save the file (Tab to autocomplete):',
+        only_directories=True,
+        style=DEFAULT_STYLE,
+        validate=validate_path
+    ).unsafe_ask()
+
+    return Path(path).resolve()
 
 #TODO: make it better
 def _generate_makefile(
@@ -53,6 +82,7 @@ def _generate_makefile(
     progress_description: str = 'Generating your Makefile...'
 ) -> None:
     template = None
+    action: str = 'generated'
     env = Environment(
         loader=FileSystemLoader(TEMPLATES_DIR), #type: ignore
         lstrip_blocks=True,
@@ -68,18 +98,24 @@ def _generate_makefile(
         makefile = template.render(data)
         outdir = Path(args.output) if args.output else Path.cwd()
         #TODO: add check if not a dir use Path.cwd() log
+        #TODO: use validate in a good way
         outdir = outdir / 'Makefile'
-        if outdir.exists(): #TODO: make overwrite better (maybe add path change..etc)
-            user_choice = single_choice('A Makefile already exists in output directory.\nDo you wanna overwrite it?', ['yes', 'no'],'Answer',console)
-            if user_choice == 'no':
-                display_panel_text(
-                    '[yellow]Makefile generation skipped (existing file not overwritten)[/yellow]',
-                    stream=console,
-                    title='Makefile Generation Skipped',
-                    border_style='yellow'
-                )
+        if outdir.exists():
+            #FIXME: use enum, auto and match 
+            choices = ['Rename', 'Overwrite', 'Use a new path', 'Abort']
+            user_choice = questionary_select('A Makefile already exists in output directory.', choices, choices_upper=False)
+            if user_choice == 'abort':
+                console.print("[yellow]→ Makefile generation aborted.[/yellow]")
                 sys.exit(0)
-        console.print('\n')
+            elif user_choice == 'rename': 
+               #sanitize this brochacho  
+                outdir = outdir.parent / _rename()
+            elif user_choice == 'use a new path':
+                outdir = _new_path() / 'Makefile'
+            else:
+                action = 'overwritten'
+                console.print("[yellow]→ Overwriting existing Makefile…[/yellow]")
+                
         try:
             with Progress(
                 SpinnerColumn(spinner_name='dots'),
@@ -95,30 +131,31 @@ def _generate_makefile(
                     progress.remove_task(task)
 
             display_panel_text(
-                f'✅ Makefile successfully generated at: [bold yellow]{outdir.parent} [/bold yellow]',
+                f'[green]✓ Makefile successfully {action}[/green] at: [bold yellow]{outdir.parent} [/bold yellow]',
                 stream=console,
                 title='Success'
             )
         except FileNotFoundError:
-            console_err.print("[bold red]Error:[/bold red] Output directory does not exist.")
+            console_err.print("[bold red]! Error:[/bold red] Output directory does not exist.")
             sys.exit(1)
 
         except PermissionError:
-            console_err.print("[bold red]Error:[/bold red] Permission denied while writing the makefile.")
+            console_err.print("[bold red]! Error:[/bold red] Permission denied while writing the makefile.")
             sys.exit(1)
 
         except IsADirectoryError:
-            console_err.print("[bold red]Error:[/bold red] Output path is a directory, not a file.")
+            console_err.print("[bold red]! Error:[/bold red] Output path is a directory, not a file.")
             sys.exit(1)
 
         except OSError as e:
-            console_err.print(f"[bold red]Error:[/bold red] Failed to write makefile: {e}")
+            console_err.print(f"[bold red]! Error:[/bold red] Failed to write makefile: {e}")
             sys.exit(1)
 
 
 def _choose_langage(data: dict) -> str:
-    langs = ['c++', 'c']
-    choice = single_choice('Choose the Langage', langs,'Langages', console)
+    langs = ['C++', 'C']
+    choice:str = questionary_select('Select a language: ',langs, choices_upper=False)
+    
     if choice.lower() == 'c++':
         data['src_ext'] = '.cpp'
         data['compiler']['var'] = 'CXX'
@@ -128,15 +165,29 @@ def _choose_langage(data: dict) -> str:
     return choice
 
 def _choose_compiler(langage: str) -> str:
-    return single_choice('Choose your compiler of use', C_COMPILERS if langage == 'c' else CPP_COMPILERS, right_col_header='Compilers', stream=console)
+    compiler: str = questionary_select(
+        'Select a compiler: ',
+        C_COMPILERS if langage == 'c' else CPP_COMPILERS
+    )
+    return compiler
 
 def _choose_standard(langage: str) -> str:
-    prompt = "Choose the compiler standard you wanna use"
-    return single_choice(prompt, C_STANDARDS, 'Standards', console) if langage.lower() == 'c' else single_choice(prompt, CPP_STANDARDS, 'Standards', console)
+    std: str = questionary_select(
+        'Select compiler standard: ',
+        C_STANDARDS if langage.lower() == 'c' else CPP_STANDARDS,
+        choices_upper=False
+    )
+    return std
 
-def _ensure_compatible_compiler_arg(*, arg: Literal['compiler', 'standard'], lang: Literal['c', 'c++'], value: str) -> str:
+def _ensure_compatible_compiler_arg(
+    *, 
+    arg: Literal['compiler', 'standard'], 
+    lang: Literal['c', 'c++'], 
+    value: str
+) -> str:
     normalized_value = value.lower()
-    prompt = f'Error: invalid {arg} {value!r} for {lang.upper()}.\nSelect {lang.upper()} {arg}'
+    err_msg = f'[bold red]! Error:[/bold red][bold] invalid {arg} {value!r} for {lang.upper()!r}[/].'
+    prompt = f'Select {lang.upper()} {arg}: '
     normalized_map = {
         'compiler' : {
             'c' : [s for s in C_COMPILERS],
@@ -148,11 +199,10 @@ def _ensure_compatible_compiler_arg(*, arg: Literal['compiler', 'standard'], lan
         }
     }
     if normalized_value not in normalized_map[arg][lang]:
-        normalized_value = single_choice(
+        console.print(err_msg)
+        normalized_value: str = questionary_select(
             prompt,
-            options=normalized_map[arg][lang],
-            right_col_header=arg,
-            stream=console
+            normalized_map[arg][lang]
         )
     #msvc compiler normalization
     if normalized_value == 'msvc':
@@ -161,7 +211,12 @@ def _ensure_compatible_compiler_arg(*, arg: Literal['compiler', 'standard'], lan
     return normalized_value
 
 def _chose_binary_name() -> str :
-    return get_user_input("Enter the output binary file's name", console, default='main')
+    filename: str = questionary.text(
+     'Output binary file name: ',
+     default='main',
+     style=DEFAULT_STYLE
+    ).unsafe_ask()
+    return filename
 
 def _get_key_for(target_system: str, /):
     if target_system == 'windows':
@@ -169,7 +224,11 @@ def _get_key_for(target_system: str, /):
     else:
         return 'unix'
 
-def _set_gui_lib_flags(data: dict[str, dict[str, str] | str | bool], args: argparse.Namespace, backend: str | None = None) -> None:
+def _set_gui_lib_flags(
+    data: dict[str, dict[str, str] | str | bool], 
+    args: argparse.Namespace,
+    backend: str | None = None
+) -> None:
     data['use_gui_lib'] = True
     if backend is None:
         backend = args.gui
@@ -199,13 +258,13 @@ def _set_gui_lib_flags(data: dict[str, dict[str, str] | str | bool], args: argpa
 
 
 def _choose_gui_lib(data: dict[str, dict[str, str] | str | bool], args: argparse.Namespace) -> None:
-    gui_libs = ['sdl2', 'sfml', 'raylib']
-    lib = single_choice('Chose your graphical library of use', gui_libs, 'Backend',console)
+    gui_libs = ['SDL2', 'SFML', 'RAYLIB']
+    lib: str = questionary_select('Select a graphics library: ', gui_libs, choices_upper=False)
     _set_gui_lib_flags(data, args, lib)
 
 def _prompt_gui_lib_usage(data:  dict[str, dict[str, str] | str | bool], args: argparse.Namespace) -> None:
-    choice = single_choice('Do you intend on using a gui libray?', ['yes', 'no'], 'Answer', console)
-    if choice == 'yes':
+    choice: bool = questionary.confirm('Use a GUI library?', style=DEFAULT_STYLE).unsafe_ask()
+    if choice:
         _choose_gui_lib(data, args)
 
 def is_target_correct(args: argparse.Namespace) -> bool:
@@ -262,43 +321,47 @@ def generate(args: argparse.Namespace) -> None:
         title='INFO',
         border_style='green',
     )
-    if args.lang and args.lang.lower() == 'c':
-        data['src_ext'] = '.c'
-        data['compiler']['var'] = 'CC'
-        langage = args.lang.lower()
-    elif args.lang and args.lang.lower() == 'c++':
-        langage = args.lang.lower()
-        data['compiler']['var'] = 'CXX'
-        data['src_ext'] = '.cpp'
-    else:
-        langage = _choose_langage(data)
-
-    if args.compiler:
-        data['compiler']['name'] = _ensure_compatible_compiler_arg(
-            arg='compiler',
-            lang=langage, #type: ignore
-            value=args.compiler,
-        )
-    else:
-        data['compiler']['name'] = _choose_compiler(langage)
-
-    if args.standard:
-        data['compiler']['std'] = _ensure_compatible_compiler_arg(
-            arg='standard',
-            lang=langage, #type: ignore
-            value=args.standard,
-        )
-    else:
-        data['compiler']['std'] = _choose_standard(langage).lower()
-
-    if args.binary_name:
-        data['output_file'] = args.binary_name
-    else:
-        data['output_file'] = _chose_binary_name()
-
-    if args.gui is None:
-        _prompt_gui_lib_usage(data, args)
-    elif isinstance(args.gui, str):
-        _set_gui_lib_flags(data, args)
-
-    _generate_makefile(data, args, progress_description=_create_progress_description(langage, args.target_system)) #type: ignore
+    try:
+        if args.lang and args.lang.lower() == 'c':
+            data['src_ext'] = '.c'
+            data['compiler']['var'] = 'CC'
+            langage = args.lang.lower()
+        elif args.lang and args.lang.lower() == 'c++':
+            langage = args.lang.lower()
+            data['compiler']['var'] = 'CXX'
+            data['src_ext'] = '.cpp'
+        else:
+            langage = _choose_langage(data)
+    
+        if args.compiler:
+            data['compiler']['name'] = _ensure_compatible_compiler_arg(
+                arg='compiler',
+                lang=langage, #type: ignore
+                value=args.compiler,
+            )
+        else:
+            data['compiler']['name'] = _choose_compiler(langage)
+    
+        if args.standard:
+            data['compiler']['std'] = _ensure_compatible_compiler_arg(
+                arg='standard',
+                lang=langage, #type: ignore
+                value=args.standard,
+            )
+        else:
+            data['compiler']['std'] = _choose_standard(langage).lower()
+    
+        if args.binary_name:
+            data['output_file'] = args.binary_name
+        else:
+            data['output_file'] = _chose_binary_name()
+    
+        if args.gui is None:
+            _prompt_gui_lib_usage(data, args)
+        elif isinstance(args.gui, str):
+            _set_gui_lib_flags(data, args)
+    
+        _generate_makefile(data, args, progress_description=_create_progress_description(langage, args.target_system)) #type: ignore
+    except KeyboardInterrupt:
+        console.print('\n[bold yellow]Exiting...Goodbye[/]')
+        sys.exit(0)
