@@ -9,7 +9,14 @@ from makefile_generator.config import (
 )
 
 #FIXME: make the code better, add compilers/standars(cpp and c) for check when no lang, reduce duplicate...etc
-# Normalize these : values.upper()
+# FIXME: fix the ambiguous err usage msg when -l + incorrect -c or -std is provided : e.g
+# mkgen generate -l C -std=c++17
+# usage: mkgen generate [target_system] [--cross-platform]  -l {C++,C}
+#                     [-c COMPILER] [-std STANDARD] [--gui GUI | --no-gui]
+#                     [--binary-name BINARY_NAME] [-o OUTPUT] [-h]
+# mkgen generate: error: Invalid compiler standard: 'c++17'
+# 
+#TODO: Normalize these : values.upper()..etc
 class LanguageAction(argparse.Action):
     def __call__(self,
         parser: argparse.ArgumentParser,
@@ -33,7 +40,7 @@ class LanguageAction(argparse.Action):
 
         elif option_string in {'-c', '--compiler'}:
             if not lang:
-                if values not in C_COMPILERS and values not in CPP_COMPILERS: #type: ignore
+                if values.lower() not in C_COMPILERS and values.lower() not in CPP_COMPILERS: #type: ignore
                     parser.error(f'Invalid compiler: {values!r}')
 
             if values and lang:
