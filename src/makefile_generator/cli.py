@@ -1,8 +1,6 @@
 # !/usr/bin/env python3
 import argparse
-import signal
 import sys
-import time
 from typing import NoReturn
 
 from rich.align import Align
@@ -12,14 +10,12 @@ from rich.text import Text
 from makefile_generator.cli_helpers.parser import normalize_target_system, parse_args
 
 ASCII_HEADER = '''
-
-███╗   ███╗ █████╗ ██╗  ██╗███████╗     ██████╗ ███████╗███╗   ██╗
-████╗ ████║██╔══██╗██║ ██╔╝██╔════╝    ██╔════╝ ██╔════╝████╗  ██║
-██╔████╔██║███████║█████╔╝ █████╗█████╗██║  ███╗█████╗  ██╔██╗ ██║
-██║╚██╔╝██║██╔══██║██╔═██╗ ██╔══╝╚════╝██║   ██║██╔══╝  ██║╚██╗██║
-██║ ╚═╝ ██║██║  ██║██║  ██╗███████╗    ╚██████╔╝███████╗██║ ╚████║
-╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝     ╚═════╝ ╚══════╝╚═╝  ╚═══╝
-
+███╗   ███╗██╗  ██╗ ██████╗ ███████╗███╗   ██╗
+████╗ ████║██║ ██╔╝██╔════╝ ██╔════╝████╗  ██║
+██╔████╔██║█████╔╝ ██║  ███╗█████╗  ██╔██╗ ██║
+██║╚██╔╝██║██╔═██╗ ██║   ██║██╔══╝  ██║╚██╗██║
+██║ ╚═╝ ██║██║  ██╗╚██████╔╝███████╗██║ ╚████║
+╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝
 '''
 
 def gradient_text(text, colors):
@@ -33,10 +29,6 @@ def show_ascii_art(show: bool, stream: Console):
         return
     colors = ["red", "orange1", "yellow", "green", "cyan", "blue", "magenta"]
     stream.print(Align.center(gradient_text(ASCII_HEADER, colors)))
-    welcome_text = Text("Welcome to the C/C++ Makefile Generator CLI!", style="bold cyan")
-    stream.print(Align.center(welcome_text))
-    stream.print("\n")
-    time.sleep(.5) #show the ascii longer lol
 
 def handle_no_command(args: argparse.Namespace) -> None | NoReturn:
     if not args.command:
@@ -52,11 +44,6 @@ def handle_no_command(args: argparse.Namespace) -> None | NoReturn:
 
 def main() -> None:
     console = Console()
-    def graceful_exit(signal, frame):
-        console.print('\n[bold yellow]Exiting...Goodbye[/]')
-        sys.exit(0)
-    signal.signal(signal.SIGINT, graceful_exit)
-
     args = parse_args()
     args = normalize_target_system(args)
 
