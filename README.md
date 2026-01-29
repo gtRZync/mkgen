@@ -1,16 +1,6 @@
 <div align="center">
     <img src="img/banner.png"></img>
-    <br>
-    <div style="display: inline-flex; align-items: baseline; gap: 12px">
-        <h1 style="color:red;">
-            <b>MKGEN</b>
-        </h1>
-        <h3 style="color: dim;">
-        <em>
-            A C/C++ Makefile generator
-        </em>
-        </h3>
-    </div>
+<h1>MKGEN <em>a C/C++ Makefile generator</em></h1>
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB.svg)](https://www.python.org/downloads)
 [![Rich](https://img.shields.io/badge/Rich-14.2.0-FF5555.svg)](https://pypi.org/project/rich/)
