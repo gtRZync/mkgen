@@ -3,6 +3,12 @@
 <h1> mkgen (MakefileGenerator) </h1>
 </div>
 
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB.svg)](https://www.python.org/downloads/release/python-3100/)
+[![Rich](https://img.shields.io/badge/Rich-14.2.0-FF5555.svg)](https://pypi.org/project/rich/)
+[![Questionary](https://img.shields.io/badge/Questionary-1.10.0-00BFFF.svg)](https://pypi.org/project/questionary/)
+[![Jinja2](https://img.shields.io/badge/Jinja2-3.1.2-FF8800.svg)](https://pypi.org/project/Jinja2/)
+
+
 
 **mkgen** is a lightweight **Makefile generator** designed for my everyday C and C++ workflow.
 
@@ -219,4 +225,4 @@ mkgen generate --cross-platform --lang C
 This is a personal tool built for real projects. Features may evolve as my workflow evolves.
 
 
-<p align="center"><a href="https://github.com/gtRZync/makefile-generator/blob/main/LICENSE"><img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=MIT&colorA=1e1e2e&colorB=89b4fa"/></a></p>
+<p align="center"><a href="https://github.com/gtRZync/mkgen/blob/main/LICENSE"><img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=MIT&colorA=1e1e2e&colorB=89b4fa"/></a></p>
