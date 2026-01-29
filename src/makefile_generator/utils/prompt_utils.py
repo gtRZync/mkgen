@@ -1,38 +1,36 @@
-from rich.align import Align
-from rich.console import Console
-from rich.panel import Panel
-from rich.prompt import Prompt
-from rich.table import Table
-from rich.text import Text
+from typing import Any, Dict, Sequence, TypeAlias
 
-def single_choice(prompt: str, options: list[str], right_col_header: str, stream: Console) -> str:
-    table = Table(title=f"[bold yellow]{prompt}[/bold yellow]", title_style='bold magenta', show_lines=True)
-    table.add_column("Option", justify="center", style="bold cyan")
-    table.add_column(right_col_header, justify="center", style="bold yellow")
+import questionary
 
-    for i, opt in enumerate(options, start=1):
-        table.add_row(str(i), opt)
+DEFAULT_STYLE = questionary.Style.from_dict({
+    # Prompt
+    "question": "bold fg:#89b4fa",
+    "instruction": "fg:#6c7086",
+    "answer": "bold fg:#a6e3a1",
 
-    stream.print(Align.center(table))
+    # Lists (select / checkbox)
+    'pointer': 'fg:#673ab7 bold',
+    'highlighted': 'fg:#673ab7 bold',
+    "selected": "fg:#a6e3a1",
+    "separator": "fg:#6c7086",
 
-    choice = Prompt.ask("[bold green]Enter the number of your choice[/bold green]", choices=[str(i) for i in range(1, len(options) + 1)])
-    return options[int(choice) - 1]
+    # Validation
+    "error": "bold fg:#f38ba8",
+})
 
-def get_user_input(prompt_text: str, stream: Console, default: str = 'default') -> str:
-    styled_prompt = Text(prompt_text, style="bold white on blue", justify="center")
+str_lower: TypeAlias = str
 
-    panel = Panel(
-        Align.center(styled_prompt),
-        title="[bold magenta]INPUT[/bold magenta]",
-        border_style="bright_blue",
-        padding=(1, 2),
-        expand=False
-    )
-    stream.print(panel)
-
-    user_input = Prompt.ask(
-        "[bold cyan]→ Enter here[/bold cyan]" + (f" (default: {default})" if default else ""), 
-        default=default, 
-        show_default=False
-    )
-    return user_input
+def questionary_select(
+    prompt: str,
+    choices: Sequence[str | questionary.Choice | Dict[str, Any]],
+    choices_upper: bool = True,
+    style: questionary.Style | None = DEFAULT_STYLE
+) -> str_lower:
+    choice:str = questionary.select(
+        prompt,
+        {c.upper() for c in choices} if choices_upper else choices,
+        style=style,
+        use_jk_keys=False,
+        use_search_filter=True
+    ).unsafe_ask()
+    return choice.lower()
