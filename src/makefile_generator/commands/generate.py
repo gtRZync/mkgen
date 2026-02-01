@@ -1,4 +1,5 @@
 import argparse
+import platform
 import sys
 import time
 from pathlib import Path
@@ -10,22 +11,16 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.text import Text
 
-from makefile_generator.config import (
-    C_COMPILERS,
-    C_STANDARDS,
-    CPP_COMPILERS,
-    CPP_STANDARDS,
-    RAYLIB_CFLAGS,
-    RAYLIB_FLAGS,
-    SDL2_CFLAGS,
-    SDL2_FLAGS,
-    SFML_CFLAGS,
-    SFML_FLAGS,
-    TEMPLATES,
-    TEMPLATES_DIR,
-)
+from makefile_generator import workspace
+from makefile_generator.config import (C_COMPILERS, C_STANDARDS, CPP_COMPILERS,
+                                       CPP_STANDARDS, RAYLIB_CFLAGS,
+                                       RAYLIB_FLAGS, SDL2_CFLAGS, SDL2_FLAGS,
+                                       SFML_CFLAGS, SFML_FLAGS, TEMPLATES,
+                                       TEMPLATES_DIR)
 from makefile_generator.utils.display_utils import display_panel_text
-from makefile_generator.utils.prompt_utils import questionary_select, DEFAULT_STYLE
+from makefile_generator.utils.prompt_utils import (DEFAULT_STYLE,
+                                                   questionary_select)
+from makefile_generator.workspace import as_win32_path
 
 console = Console()
 console_err = Console(stderr=True)
@@ -63,7 +58,7 @@ def _new_path() -> Path:
     def validate_path(path) -> bool:
         if path:
             path = Path(path)
-            if path.resolve().exists():
+            if path.resolve().exists() and path.is_dir():
                 return True
         return False
     path = questionary.path(
@@ -266,6 +261,18 @@ def _prompt_gui_lib_usage(data:  dict[str, dict[str, str] | str | bool], args: a
     choice: bool = questionary.confirm('Use a GUI library?', style=DEFAULT_STYLE).unsafe_ask()
     if choice:
         _choose_gui_lib(data, args)
+        
+def _set_directories(langage: Literal['C', 'C++'], data: dict) -> None:
+    src_dir = workspace.resolve_folder(langage=langage)
+    hdr_dir = workspace.resolve_folder(langage=langage, type='header')
+    obj_dir = workspace.resolve_folder(langage=langage, type='object')
+    bin_dir = workspace.resolve_folder(langage=langage, type='binary')
+    system = platform.system().lower()
+    
+    data['directories']['src'] = as_win32_path(src_dir) if system == 'windows' else src_dir
+    data['directories']['include'] = as_win32_path(hdr_dir) if system == 'windows' else hdr_dir
+    data['directories']['build'] = as_win32_path(obj_dir) if system == 'windows' else obj_dir
+    data['directories']['bin'] = as_win32_path(bin_dir) if system == 'windows' else bin_dir
 
 def is_target_correct(args: argparse.Namespace) -> bool:
     systems = {'windows', 'mac', 'linux', 'macos'}
@@ -298,7 +305,7 @@ def generate(args: argparse.Namespace) -> None:
 
     if not is_target_correct(args):
         _target_err()
-    #TODO: add folders check
+        
     langage = None
     data = {
         'compiler' : {
@@ -307,10 +314,10 @@ def generate(args: argparse.Namespace) -> None:
             'std' : ''
         },
         'directories' : {
-            'bin' : 'bin',
-            'src' : 'src',
-            'build' : 'build',
-            'include' : 'include',
+            'bin' : None,
+            'src' : None,
+            'build' : None,
+            'include' : None,
         },
         'output_file' : 'main',
         'src_ext' : ''
@@ -332,6 +339,11 @@ def generate(args: argparse.Namespace) -> None:
             data['src_ext'] = '.cpp'
         else:
             langage = _choose_langage(data)
+            
+        _set_directories(
+            langage=langage, #type: ignore
+            data=data
+            )
     
         if args.compiler:
             data['compiler']['name'] = _ensure_compatible_compiler_arg(
@@ -363,5 +375,5 @@ def generate(args: argparse.Namespace) -> None:
     
         _generate_makefile(data, args, progress_description=_create_progress_description(langage, args.target_system)) #type: ignore
     except KeyboardInterrupt:
-        console.print('\n[bold yellow]Exiting...Goodbye[/]')
+        console.print('\n[bold yellow]→ Exiting...Goodbye[/]')
         sys.exit(0)
