@@ -16,7 +16,7 @@ from makefile_generator.config import (C_COMPILERS, C_STANDARDS, CPP_COMPILERS,
                                        CPP_STANDARDS, RAYLIB_CFLAGS,
                                        RAYLIB_FLAGS, SDL2_CFLAGS, SDL2_FLAGS,
                                        SFML_CFLAGS, SFML_FLAGS, TEMPLATES,
-                                       TEMPLATES_DIR)
+                                       TEMPLATES_DIR, WIN32_RESERVED_NAMES)
 from makefile_generator.utils.display_utils import display_panel_text
 from makefile_generator.utils.prompt_utils import (DEFAULT_STYLE,
                                                    questionary_select)
@@ -42,17 +42,28 @@ def _create_progress_description(
 
     return description
     
-def _rename() -> str:
+#TODO: make name validation more robust    
+def _rename(old_name: str) -> str:
     def validate_name(name) -> bool:
-        if name:
-            return True
+        invalid_symbols = {'\\', '/', ':', '*', '?', '"', '<', '>', '|'}
+        if name and name.lower() != old_name:
+            match platform.system().lower():
+                case 'windows':
+                    if not any(s in name for s in invalid_symbols) and name not in WIN32_RESERVED_NAMES:
+                        return True
+                case 'darwin':
+                    if ':' not in name:
+                        return True
+                case 'linux':
+                    if '\0' not in name and '/' not in name:
+                        return True
         return False
     filename: str = questionary.text(
         'Enter new filename: ', 
         style=DEFAULT_STYLE,
         validate=validate_name, 
     ).unsafe_ask()
-    return filename
+    return filename.strip()
     
 def _new_path() -> Path:
     def validate_path(path) -> bool:
@@ -104,7 +115,7 @@ def _generate_makefile(
                 sys.exit(0)
             elif user_choice == 'rename': 
                #sanitize this brochacho  
-                outdir = outdir.parent / _rename()
+                outdir = outdir.parent / _rename(outdir.name.lower())
             elif user_choice == 'use a new path':
                 outdir = _new_path() / 'Makefile'
             else:

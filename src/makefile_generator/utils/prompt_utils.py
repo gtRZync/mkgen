@@ -28,7 +28,7 @@ def questionary_select(
 ) -> str_lower:
     choice:str = questionary.select(
         prompt,
-        {c.upper() for c in choices} if choices_upper else choices,
+        [c.upper() for c in choices] if choices_upper else choices, #type: ignore
         style=style,
         use_jk_keys=False,
         use_search_filter=True
