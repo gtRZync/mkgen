@@ -1,17 +1,7 @@
-from .constants import (
-    C_COMPILERS,
-    C_STANDARDS,
-    CPP_COMPILERS,
-    CPP_STANDARDS,
-    RAYLIB_CFLAGS,
-    RAYLIB_FLAGS,
-    SDL2_CFLAGS,
-    SDL2_FLAGS,
-    SFML_CFLAGS,
-    SFML_FLAGS,
-    TEMPLATES,
-    TEMPLATES_DIR,
-)
+from .constants import (C_COMPILERS, C_STANDARDS, CPP_COMPILERS, CPP_STANDARDS,
+                        RAYLIB_CFLAGS, RAYLIB_FLAGS, SDL2_CFLAGS, SDL2_FLAGS,
+                        SFML_CFLAGS, SFML_FLAGS, TEMPLATES, TEMPLATES_DIR,
+                        WIN32_RESERVED_NAMES)
 
 __all__ = [
     'SDL2_CFLAGS',
@@ -25,5 +15,6 @@ __all__ = [
     'CPP_COMPILERS',
     'C_COMPILERS',
     'TEMPLATES_DIR',
-    'TEMPLATES'
+    'TEMPLATES',
+    'WIN32_RESERVED_NAMES'
 ]
