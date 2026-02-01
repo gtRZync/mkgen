@@ -132,11 +132,8 @@ This command analyzes the project directory, applies heuristics to detect source
 mkgen generate [options]
 ```
 
-> [!CAUTION]
-> **Folder scanning is not functional yet**
-
 > [!NOTE]
-> Folder scanning is non-recursive by default.<br>
+> Folder scanning is recursive by default.<br>
 > GUI-related flags affect only compilation and linking flags in the generated Makefile.
 
 ---
@@ -154,7 +151,6 @@ mkgen version
 > [!NOTE]
 > This command does not accept any additional arguments.<br>
 > The version command is equivalent to running `mkgen --version`.<br>
-> Useful for debugging, bug reports, and verifying installed versions.
 
 ---
 
