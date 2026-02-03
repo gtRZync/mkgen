@@ -44,7 +44,7 @@ class _Folder:
     count_h: int        = 0
     count_main: int     = 0
     count_obj: int      = 0
-    count_binary: int   = 0
+    count_executable: int   = 0
 
     @property
     def source_score(self) -> float:
@@ -56,16 +56,16 @@ class _Folder:
 
     @property
     def object_score(self) -> float:
-        return self.count_obj / (self.count_binary + 1)
+        return self.count_obj / (self.count_executable + 1)
 
     @property
-    def binary_score(self) -> float:
-        return self.count_binary / (self.count_obj + 1)
+    def executable_score(self) -> float:
+        return self.count_executable / (self.count_obj + 1)
     
     def contains_any_word(self, iterable: Iterable[str]) -> bool:
         return any(s in self.name for s in iterable)
         
-    def get_score_by_type(self, type: Literal['source', 'header', 'object', 'binary']) -> float:
+    def get_score_by_type(self, type: Literal['source', 'header', 'object', 'executable']) -> float:
         return getattr(self, f'{type}_score')
         
 def _get_path_name(path: Path) -> str:
@@ -103,35 +103,35 @@ def _handle_output_files(
     obj_pattern = {'*.obj', '*.o'}
     exec_pattern = {'*.exe', '*.out'}
     
-    def get_unix_binary_count() -> int:
+    def get_unix_executable_count() -> int:
         import os
         return sum(1 for f in current_folder.glob('*') if f.is_file() and os.access(current_folder, mode=os.X_OK))
 
     obj_files = sum(1 for pattern in obj_pattern for _ in current_folder.glob(pattern))
     exe_files = sum(1 for pattern in exec_pattern for _ in current_folder.glob(pattern))
     if platform.system().lower() == 'linux' or platform.system().lower() == 'darwin':
-        exe_files += get_unix_binary_count() 
+        exe_files += get_unix_executable_count() 
     candidates.append(
         _Folder(
             name=_get_path_name(current_folder),
             count_obj=obj_files,
-            count_binary=exe_files
+            count_executable=exe_files
         )
     )
 
-def _is_input_type(type: Literal['source', 'header', 'object', 'binary']) -> bool:
+def _is_input_type(type: Literal['source', 'header', 'object', 'executable']) -> bool:
     return type == 'source' or type == 'header'
 
 #TODO: add a likeliness thing that affect choice in these kinda situations: 
 '''
-folder = Folder(name='python', count_src=0, count_h=0, count_main=0, count_obj=0, count_binary=1), score = 1.0
-folder = Folder(name='build', count_src=0, count_h=0, count_main=0, count_obj=5, count_binary=0), score = 0.0
-folder = Folder(name='build/bin', count_src=0, count_h=0, count_main=0, count_obj=0, count_binary=1), score = 1.0
+folder = Folder(name='python', count_src=0, count_h=0, count_main=0, count_obj=0, count_executable=1), score = 1.0
+folder = Folder(name='build', count_src=0, count_h=0, count_main=0, count_obj=5, count_executable=0), score = 0.0
+folder = Folder(name='build/bin', count_src=0, count_h=0, count_main=0, count_obj=0, count_executable=1), score = 1.0
 '''
 def resolve_folder(
     *, 
     langage: Literal['C', 'C++'], 
-    type: Literal['source', 'header', 'object', 'binary'] = 'source',
+    type: Literal['source', 'header', 'object', 'executable'] = 'source',
     ignore_hidden: bool = True
 ) -> str:
     candidates: list[_Folder] = []
@@ -164,7 +164,7 @@ def resolve_folder(
             'source' : {'src', 'source', 'sources', 'core'},
             'header' : {'hdr', 'header', 'inc', 'include'},
             'object' : {'obj', 'objs', 'build', 'object'},
-            'binary' : {'bin', 'release', 'build/bin'}
+            'executable' : {'bin', 'release', 'build/bin'}
         }
 
         def add_s(text: str) -> str:
@@ -182,7 +182,7 @@ def resolve_folder(
         match type:
             case 'source' | 'header':
                 return '.'
-            case 'binary':
+            case 'executable':
                 return 'build/bin'
             case 'object':
                 return 'build'

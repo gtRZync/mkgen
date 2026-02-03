@@ -277,7 +277,7 @@ def _set_directories(langage: Literal['C', 'C++'], data: dict) -> None:
     src_dir = workspace.resolve_folder(langage=langage)
     hdr_dir = workspace.resolve_folder(langage=langage, type='header')
     obj_dir = workspace.resolve_folder(langage=langage, type='object')
-    bin_dir = workspace.resolve_folder(langage=langage, type='binary')
+    bin_dir = workspace.resolve_folder(langage=langage, type='executable')
     system = platform.system().lower()
     
     data['directories']['src'] = as_win32_path(src_dir) if system == 'windows' else src_dir
