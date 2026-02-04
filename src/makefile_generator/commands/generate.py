@@ -44,19 +44,28 @@ def _create_progress_description(
     
 #TODO: make name validation more robust    
 def _rename(old_name: str) -> str:
-    def validate_name(name) -> bool:
+    def validate_name(name: str) -> bool | str:
         invalid_symbols = {'\\', '/', ':', '*', '?', '"', '<', '>', '|'}
         if name and name.lower() != old_name:
             match platform.system().lower():
                 case 'windows':
-                    if not any(s in name for s in invalid_symbols) and name not in WIN32_RESERVED_NAMES:
-                        return True
+                    if name in WIN32_RESERVED_NAMES:
+                        return f'Invalid name: {name!r} is reserved on Windows.'
+                    if any(s in name for s in invalid_symbols):
+                        return f'Error: Name contains invalid characters: {', '.join(s for s in invalid_symbols if s in name)!r}. Please remove them.'
+                    if name.endswith('.'):
+                        return "Error: Name cannot end with a period ('.')."
+                    return True
                 case 'darwin':
-                    if ':' not in name:
-                        return True
+                    if ':' in name:
+                        return "Error: Name cannot contain colons (':')."
+                    return True
                 case 'linux':
-                    if '\0' not in name and '/' not in name:
-                        return True
+                    if '\0' in name:
+                        return "Error: Name cannot contain null characters ('\0')."
+                    if '/' in name:
+                        return "Error: Name cannot contain slashes ('/')."
+                    return True
         return False
     filename: str = questionary.text(
         'Enter new filename: ', 
@@ -65,12 +74,22 @@ def _rename(old_name: str) -> str:
     ).unsafe_ask()
     return filename.strip()
     
-def _new_path() -> Path:
-    def validate_path(path) -> bool:
+def _new_path(old_save_dir: Path) -> Path:
+    def validate_path(path) -> bool | str:
         if path:
             path = Path(path)
-            if path.resolve().exists() and path.is_dir():
+            if (path / 'Makefile').exists():
+                return 'Invalid path: Makefile already exists in this directory. Choose a different path.'
+            if not path.exists():
+                return 'Invalid path: path does not exist.'
+            if not path.is_dir():
+                return 'Invalid path: not a directory.'
+            if path == old_save_dir:
+                return 'Invalid path: cannot reuse default save directory'
+            if path.resolve().exists():
                 return True
+        elif not path and old_save_dir == Path.cwd():
+            return 'Invalid path: cannot reuse default save directory'
         return False
     path = questionary.path(
         'Select or enter a directory to save the file (Tab to autocomplete):',
@@ -117,7 +136,7 @@ def _generate_makefile(
                #sanitize this brochacho  
                 outdir = outdir.parent / _rename(outdir.name.lower())
             elif user_choice == 'use a new path':
-                outdir = _new_path() / 'Makefile'
+                outdir = _new_path(old_save_dir=outdir.parent) / 'Makefile'
             else:
                 action = 'overwritten'
                 console.print("[yellow]→ Overwriting existing Makefile…[/yellow]")
@@ -286,12 +305,12 @@ def _set_directories(langage: Literal['C', 'C++'], data: dict) -> None:
     data['directories']['bin'] = as_win32_path(bin_dir) if system == 'windows' else bin_dir
 
 def is_target_correct(args: argparse.Namespace) -> bool:
-    systems = {'windows', 'mac', 'linux', 'macos'}
+    systems = {'windows', 'linux', 'mac', 'macos', 'mac_os', 'mac os'}
 
     if args.cross_platform:
         return True
     if args.target_system.lower() in systems:
-        if args.target_system.lower() == 'macos':
+        if args.target_system.lower() in {'mac_os', 'macos', 'mac os'}:
             args.target_system = 'mac'
         return True
     return False
