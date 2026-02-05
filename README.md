@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="img/banner.png"></img>
+    <img src="docs/banner.png" alt="mkgen banner">
 <h1>MKGEN <em>a C/C++ Makefile generator</em></h1>
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB.svg)](https://www.python.org/downloads)
@@ -11,6 +11,33 @@
 </a>
 </div>
 
+<div align="center"><b>Zero-pain</b> Makefiles for C and C++ projects</div>
+
+## Supported languages
+
+<div>
+    <img height="40px" src="docs/cpp.svg" alt="C++">
+    <img height="40px" src="docs/c.svg" alt="C">
+</div>
+
+## Supported graphics libraries
+
+<div>
+    <img height="40px" src="docs/sdl.svg" alt="SDL2">
+    <img height="40px" src="docs/sfml.svg" alt="SFML">
+    <img height="40px" src="docs/raylib.svg" alt="raylib">
+</div>
+
+## Supported platforms
+
+<div>
+    <img height="40px" src="docs/windows.svg" alt="Windows API">
+    <img height="40px" src="docs/linux.svg" alt="Linux">
+    <img height="40px" src="docs/macos.svg" alt="macOS">
+</div>
+
+
+## About mkgen
 
 **mkgen** is a lightweight **Makefile generator** designed for my everyday C and C++ workflow.
 
