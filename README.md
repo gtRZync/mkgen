@@ -129,18 +129,8 @@ pip install .
 ```sh
 mkgen generate
 ```
-
-or 
-
-```sh
-mkgen generate <system>
-```
-
-or even
-
-```sh
-mkgen generate --cross-platform
-```
+> [!NOTE]
+> You can also specify a system or [generate cross-platform](#using-cross-platform-mode-instead-of-target_system). See the [examples](#usage-examples) and [arguments section](#arguments-for-generate) below for more details.
 
 4. Follow the interactive menu and boom a Makefile will appear at the specified output path or current working directory
 
@@ -194,13 +184,13 @@ mkgen version
 ### Optional positional argument
 | Argument          | Description                                                                                 | Default |
 |------------------|---------------------------------------------------------------------------------------------|---------|
-| `target_system`   | Specify the system/OS for which the Makefile should be generated (e.g., `linux`, `windows`, `macos`). ⚠️ Mutually exclusive with `--cross-platform`. | Current system/OS |
+| `target_system`   | Specify the system/OS for which the Makefile should be generated (e.g., `linux`, `windows`, `macos`). ⚠️ Mutually exclusive with cross-platform option (`--cross-platform` / `--portable`). | Current system/OS |
 
 ### Optional keyword arguments (flags)
 
 | Argument             | Description                                                                                                                                                                                                                                       | Default  |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| `--cross-platform`   | Generate a Makefile that works across multiple systems. ⚠️ Cannot be used with `target_system`.                                                                                                                                                   | Disabled |
+| `--cross-platform`, `--portable`   | Generate a Makefile that works across multiple systems. ⚠️ Cannot be used with `target_system`.                                                                                                                                                   | Disabled |
 | `-l`, `--lang`       | Specify the programming language to use. Supported: `C` or `C++`.                                                                                                                                                                                 | None     |
 | `-c`, `--compiler`   | Specify the compiler to use. This value will be written into the generated Makefile.                                                                                                                                                              | None     |
 | `-std`, `--standard` | Specify the language standard to use (e.g., c11, c17, c++11, c++17, c++20). Added to compiler flags in the Makefile.                                                                                                                              | None     |
@@ -243,6 +233,10 @@ mkgen generate macos -l C -std c23 -c clang --no-gui
 
 ```sh
 mkgen generate --cross-platform --lang C
+```
+
+```sh
+mkgen generate --portable --lang C++
 ```
 
 ## Status
