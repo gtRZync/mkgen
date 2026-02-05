@@ -36,7 +36,7 @@ def parse_args() -> argparse.Namespace:
         help='Target environnement (e.g : Linux, Windows..etc), defaults to current system'
     )
     generate_parser.add_argument(
-        '--cross-platform',
+        '--cross-platform', '--portable',
         action='store_true',
         help="Generate a Makefile that works across multiple systems."
     )
@@ -49,12 +49,14 @@ def parse_args() -> argparse.Namespace:
     generate_parser.add_argument(
         '-c', '--compiler',
         type=str,
+        dest='compilers',
         action=LanguageAction,
         help='Specify the compiler to use in the Makefile'
     )
     generate_parser.add_argument(
         '-std', '--standard',
         type=str,
+        dest='standards',
         action=LanguageAction,
         help='Specify the language standard (e.g., c11, c++17, c++20)'
     )

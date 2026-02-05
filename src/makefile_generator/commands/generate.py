@@ -12,11 +12,10 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.text import Text
 
 from makefile_generator import workspace
-from makefile_generator.config import (C_COMPILERS, C_STANDARDS, CPP_COMPILERS,
-                                       CPP_STANDARDS, RAYLIB_CFLAGS,
-                                       RAYLIB_FLAGS, SDL2_CFLAGS, SDL2_FLAGS,
-                                       SFML_CFLAGS, SFML_FLAGS, TEMPLATES,
-                                       TEMPLATES_DIR, WIN32_RESERVED_NAMES)
+from makefile_generator.config import (PROFILES, RAYLIB_CFLAGS, RAYLIB_FLAGS,
+                                       SDL2_CFLAGS, SDL2_FLAGS, SFML_CFLAGS,
+                                       SFML_FLAGS, TEMPLATES, TEMPLATES_DIR,
+                                       WIN32_RESERVED_NAMES)
 from makefile_generator.utils.display_utils import display_panel_text
 from makefile_generator.utils.prompt_utils import (DEFAULT_STYLE,
                                                    questionary_select)
@@ -191,47 +190,33 @@ def _choose_langage(data: dict) -> str:
 
 def _choose_compiler(langage: str) -> str:
     compiler: str = questionary_select(
-        'Select a compiler: ',
-        C_COMPILERS if langage == 'c' else CPP_COMPILERS
+        f'Select {langage.upper()} compiler: ',
+        PROFILES[langage]['compilers']
     )
     return compiler
 
 def _choose_standard(langage: str) -> str:
     std: str = questionary_select(
-        'Select compiler standard: ',
-        C_STANDARDS if langage.lower() == 'c' else CPP_STANDARDS,
-        choices_upper=False
+        f'Select {langage.upper()} standard: ',
+        PROFILES[langage]['standards'],
     )
     return std
 
 def _ensure_compatible_compiler_arg(
     *, 
-    arg: Literal['compiler', 'standard'], 
+    arg: Literal['compilers', 'standards'], 
     lang: Literal['c', 'c++'], 
     value: str
 ) -> str:
     normalized_value = value.lower()
-    err_msg = f'[bold red]! Error:[/bold red][bold] invalid {arg} {value!r} for {lang.upper()!r}[/].'
-    prompt = f'Select {lang.upper()} {arg}: '
-    normalized_map = {
-        'compiler' : {
-            'c' : [s for s in C_COMPILERS],
-            'c++' : [s for s in CPP_COMPILERS]
-        },
-        'standard' : {
-            'c' : [s.lower() for s in C_STANDARDS],
-            'c++' : [s.lower() for s in CPP_STANDARDS]
-        }
-    }
-    if normalized_value not in normalized_map[arg][lang]:
+    err_msg = f'[bold red]! Error:[/bold red][bold] invalid {arg[:-1]} {value!r} for {lang.upper()!r}[/].'
+    prompt = f'Select {lang.upper()} {arg[:-1]}: '
+    if normalized_value not in PROFILES[lang][arg]:
         console.print(err_msg)
         normalized_value: str = questionary_select(
             prompt,
-            normalized_map[arg][lang]
+            PROFILES[lang][arg]
         )
-    #msvc compiler normalization
-    if normalized_value == 'msvc':
-        normalized_value = 'cl'
 
     return normalized_value
 
@@ -375,20 +360,20 @@ def generate(args: argparse.Namespace) -> None:
             data=data
             )
     
-        if args.compiler:
+        if args.compilers:
             data['compiler']['name'] = _ensure_compatible_compiler_arg(
-                arg='compiler',
+                arg='compilers',
                 lang=langage, #type: ignore
-                value=args.compiler,
+                value=args.compilers,
             )
         else:
             data['compiler']['name'] = _choose_compiler(langage)
     
-        if args.standard:
+        if args.standards:
             data['compiler']['std'] = _ensure_compatible_compiler_arg(
-                arg='standard',
+                arg='standards',
                 lang=langage, #type: ignore
-                value=args.standard,
+                value=args.standards,
             )
         else:
             data['compiler']['std'] = _choose_standard(langage).lower()

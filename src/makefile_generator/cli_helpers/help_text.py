@@ -1,5 +1,5 @@
 GENERATE_USAGE_TEXT = '''\
-mkgen generate [target_system] [--cross-platform]  -l {C++,C}
+mkgen generate [target_system] [  --cross-platform, --portable]  -l {C++,C}
                       [-c COMPILER] [-std STANDARD] [--gui GUI | --no-gui] 
                       [--binary-name BINARY_NAME] [-o OUTPUT] [-h]
 '''
@@ -10,12 +10,12 @@ Generate a Makefile for your C/C++ project with customizable options.
 positional arguments:
   target_system                 Target environnement (e.g : Linux, Windows..etc),
                                 defaults to current system
-                                ⚠ Mutually exclusive with --cross-platform
+                                ⚠ Mutually exclusive with cross-platform option (--cross-platform / --portable).
 
 options:
   -h, --help                    show this help message and exit
 
-  --cross-platform              Generate a Makefile that works across multiple systems.
+  --cross-platform, --portable  Generate a Makefile that works across multiple systems.
                                 ⚠ Cannot be used with target_system
 
   -l, --lang LANG               Specify the programming language
@@ -24,7 +24,7 @@ options:
 
   -std, --standard STANDARD     Specify the language standard (e.g., c11, c++17, c++20)
 
-  --gui GUI                     Enable GUI backend. Optionally chose the backend.
+  --gui GUI                     Enable GUI backend. Must provide a backend value.
                                 ⚠ Cannot be used with --no-gui
   
   --no-gui                      Disable GUI prompt.
@@ -45,7 +45,6 @@ Notes:
   - All arguments are optional unless explicitly stated as required.
   - Compiler, language, and standard settings are written into the generated Makefile.
   - GUI library flags and binary naming are automatically handled in the Makefile.
-  - Targeting a specific system overrides cross-platform settings.
 
 Examples:
   Generate a Makefile for a C++ project with GCC and C++17 standard:
@@ -53,9 +52,13 @@ Examples:
 
   Generate a Makefile for a cross-platform project including GUI flags:
       mkgen generate --cross-platform --gui=sdl2 --binary-name my_app
+      mkgen generate --portable --gui=RAYLIB --lang C++
 
   Generate a Makefile for Linux specifically:
       mkgen generate linux --binary-name my_app
+      
+  Generate a Makefile Without GUI flags:
+      mkgen generate windows --no-gui -l=C++ -std=c++23
 
   Launch interactive mode (no args, or only some args provided):
       mkgen generate
@@ -77,9 +80,9 @@ Options:
 
 
 MUTUALLY_EXCLUSIVE = 'usage: ' + GENERATE_USAGE_TEXT + '''
-mkgen generate: error: Cannot specify both a target_system and --cross-platform.
+mkgen generate: error: Cannot specify both a target_system and the cross-platform option (--cross-platform / --portable).
 Choose either:
-  - a specific target_system (e.g windows, linux...etc),
-  - the --cross-platform option, or
+  - a specific target_system (e.g. windows, linux, etc.),
+  - the cross-platform option (--cross-platform / --portable), or
   - nothing (defaults to your current system)
 '''

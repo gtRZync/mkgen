@@ -8,36 +8,16 @@ raylib static :
 
 from importlib.resources import files
 
-CPP_STANDARDS = [
-    "C++98",
-    "C++03",
-    "C++11",
-    "C++14",
-    "C++17",
-    "C++20",
-    "C++23"
-]
-C_STANDARDS = [
-    "C89",
-    "C90",
-    "C95",
-    "C99",
-    "C11",
-    "C17",
-    "C18",
-    "C23"
-]
-CPP_COMPILERS = [
-    'g++',     
-    'clang++', 
-    'msvc'
-]
-
-C_COMPILERS = [
-    'gcc',
-    'clang',
-    'msvc'
-]
+PROFILES = {
+    'c': {
+        'standards': ['c89', 'c90', 'c95', 'c99', 'c11', 'c17', 'c18', 'c23'],
+        'compilers': ['gcc', 'clang']
+    },
+    'c++': {
+        'standards': ['c++98', 'c++03', 'c++11', 'c++14', 'c++17', 'c++20', 'c++23'],
+        'compilers': ['g++', 'clang++']
+    }
+}
 
 WIN32_RESERVED_NAMES = {
     'CON', 
