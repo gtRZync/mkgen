@@ -11,6 +11,24 @@
 </a>
 </div>
 
+> [!CAUTION]
+> 
+> 
+> This project originally started as a **zero-configuration Makefile generator** designed around a very small, personal project layout.
+> 
+> As the project grew, I unintentionally pushed it toward becoming a *general-purpose build system*, adding heuristics to guess directory roles, targets, and structure.
+> 
+> This approach does **not scale** and led to fragile behavior once real-world layouts (modular source trees, private headers, platform code, external dependencies, tests, etc.) were introduced.
+> 
+> The project is now undergoing a **deep refactor** to remove heuristic guessing entirely and replace it with a deterministic, convention-driven model based on explicit filesystem anchors.
+> 
+> The goal is to return to something small, predictable, and fast **not** to compete with CMake or other full build systems.
+> 
+> Development will be slow because this refactor is happening alongside university coursework, but the redesign is actively in progress.
+> 
+> If you're here expecting stability: please wait for the new architecture branch to land.
+>
+
 <div align="center"><b>Zero-pain</b> Makefiles for C and C++ projects</div>
 
 ## Supported languages
