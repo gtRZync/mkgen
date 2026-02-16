@@ -11,6 +11,8 @@
 </a>
 </div>
 
+<div align="center"><b>Zero-pain</b> Makefiles for C and C++ projects</div>
+
 > [!CAUTION]
 > 
 > 
@@ -29,7 +31,6 @@
 > If you're here expecting stability: please wait for the new architecture branch to land.
 >
 
-<div align="center"><b>Zero-pain</b> Makefiles for C and C++ projects</div>
 
 ## Supported languages
 
