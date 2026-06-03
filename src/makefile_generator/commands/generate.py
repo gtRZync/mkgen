@@ -355,6 +355,7 @@ def generate(args: argparse.Namespace) -> None:
         else:
             langage = _choose_langage(data)
             
+        #TODO: add a loading panel for when iterating through large folder base
         _set_directories(
             langage=langage, #type: ignore
             data=data

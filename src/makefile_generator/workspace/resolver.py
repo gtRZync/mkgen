@@ -36,6 +36,10 @@ def _get_folders_path_relative_to_dir(*, root: Path, ignore_hidden: bool = True)
     recurse(root, folders)
     return folders
 
+@dataclass(frozen=True, slots=True, kw_only=True)
+class WorkspaceConfig:
+    ...
+
 #gotta improve it to make some methods or fields only exist at runtime maybe
 @dataclass(frozen=True, slots=True, kw_only=True)
 class _Folder:

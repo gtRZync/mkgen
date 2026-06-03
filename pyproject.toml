@@ -7,7 +7,7 @@ name = "mkgen"
 version = "0.5.4"
 description = "A C/C++ makefile generator"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "MIT"
 authors = [
     {name="Myson Dio"}

@@ -1,6 +1,23 @@
-from .constants import (PROFILES, RAYLIB_CFLAGS, RAYLIB_FLAGS, SDL2_CFLAGS,
-                        SDL2_FLAGS, SFML_CFLAGS, SFML_FLAGS, TEMPLATES,
-                        TEMPLATES_DIR, WIN32_RESERVED_NAMES)
+from .constants import (
+                        EXTERNAL,
+                        MAKEFILE,
+                        MKCACHE,
+                        MKROOT,
+                        MODULE,
+                        PROFILES,
+                        PUBLIC,
+                        RAYLIB_CFLAGS,
+                        RAYLIB_FLAGS,
+                        SDL2_CFLAGS,
+                        SDL2_FLAGS,
+                        SFML_CFLAGS,
+                        SFML_FLAGS,
+                        SOURCES,
+                        TEMPLATES,
+                        TEMPLATES_DIR,
+                        TEST,
+                        WIN32_RESERVED_NAMES,
+)
 
 __all__ = [
     'SDL2_CFLAGS',
@@ -12,5 +29,13 @@ __all__ = [
     'PROFILES',
     'TEMPLATES_DIR',
     'TEMPLATES',
-    'WIN32_RESERVED_NAMES'
+    'WIN32_RESERVED_NAMES',
+    'MAKEFILE',
+    'MODULE',
+    'PUBLIC',
+    'MKROOT',
+    'MKCACHE',
+    'EXTERNAL',
+    'TEST',
+    'SOURCES'
 ]

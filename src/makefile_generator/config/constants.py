@@ -8,6 +8,15 @@ raylib static :
 
 from importlib.resources import files
 
+MKROOT = '.mkroot'
+MKCACHE = '.mkcache'
+MAKEFILE = 'build.mk'
+SOURCES = 'sources.mk'
+MODULE = '.module'
+TEST = '.test'
+PUBLIC = '.public'
+EXTERNAL = '.external'
+
 PROFILES = {
     'c': {
         'standards': ['c89', 'c90', 'c95', 'c99', 'c11', 'c17', 'c18', 'c23'],
@@ -20,10 +29,10 @@ PROFILES = {
 }
 
 WIN32_RESERVED_NAMES = {
-    'CON', 
-    'PRN', 
-    'AUX', 
-    'NUL', 
+    'CON',
+    'PRN',
+    'AUX',
+    'NUL',
     'COM0',
     'COM1',
     'COM2',
@@ -67,9 +76,8 @@ SDL2_CFLAGS = '$(shell pkg-config --cflags sdl2)'
 TEMPLATES_DIR = files('makefile_generator') / 'templates'
 
 TEMPLATES = {
-    'windows': '_WIN32.mak.j2',
+    'windows': 'windows.mk.j2',
     'linux': '__linux__.mak.j2',
-    'mac': '__APPLE__.mak.j2',
+    'mac os': '__APPLE__.mak.j2',
     'cross-platform' : 'cross-platform.mak.j2'
 }
-

@@ -7,7 +7,7 @@ from rich.align import Align
 from rich.console import Console
 from rich.text import Text
 
-from makefile_generator.cli_helpers.parser import normalize_target_system, parse_args
+from makefile_generator.cli_helpers.parser import parse_args
 
 ASCII_HEADER = '''
 ███╗   ███╗██╗  ██╗ ██████╗ ███████╗███╗   ██╗
@@ -32,7 +32,8 @@ def show_ascii_art(show: bool, stream: Console):
 
 def handle_no_command(args: argparse.Namespace) -> None | NoReturn:
     if not args.command:
-        from makefile_generator.cli_helpers.help_text import TOP_LEVEL_HELP_TEXT
+        from makefile_generator.cli_helpers.help_text import \
+            TOP_LEVEL_HELP_TEXT
         from makefile_generator.commands.version import mkgen_version
         from makefile_generator.utils.display_utils import show_text
         if args.version:
@@ -40,17 +41,24 @@ def handle_no_command(args: argparse.Namespace) -> None | NoReturn:
         if args.help:
             show_text(TOP_LEVEL_HELP_TEXT)
         show_text(TOP_LEVEL_HELP_TEXT, file=sys.stderr, code=1)
-
+        
+def get_banner_flag(args) -> bool:
+    if args.no_banner:
+        return False
+    if args.banner:
+        return True
+    if args.command == 'init':
+        return True
+    return False
 
 def main() -> None:
     console = Console()
     args = parse_args()
-    args = normalize_target_system(args)
 
     handle_no_command(args)
 
     show_ascii_art(
-        show=args.command != 'version',
+        show=get_banner_flag(args),
         stream=console
     )
 
