@@ -8,8 +8,10 @@ raylib static :
 
 from importlib.resources import files
 
-MKROOT = '.mkroot'
-MKCACHE = '.mkcache'
+MKGEN_CONFIG_FILE = 'mkgen.toml'
+CACHED_CONFIG_FILE = 'cached_config.json'
+COMPILED_DIR = 'MkgenFiles'
+MKCACHE = 'mkcache.txt'
 MAKEFILE = 'build.mk'
 SOURCES = 'sources.mk'
 MODULE = '.module'
@@ -28,56 +30,11 @@ PROFILES = {
     }
 }
 
-WIN32_RESERVED_NAMES = {
-    'CON',
-    'PRN',
-    'AUX',
-    'NUL',
-    'COM0',
-    'COM1',
-    'COM2',
-    'COM3',
-    'COM4',
-    'COM5',
-    'COM6',
-    'COM7',
-    'COM8',
-    'COM9',
-    'LPT0',
-    'LPT1',
-    'LPT2',
-    'LPT3',
-    'LPT4',
-    'LPT5',
-    'LPT6',
-    'LPT7',
-    'LPT8',
-    'LPT9',
-}
-
-SFML_FLAGS = {
-    'win32': '-lsfml-graphics -lsfml-window -lsfml-audio -lsfml-system',
-    'unix': '$(shell pkg-config --libs sfml-graphics)'
-}
-SFML_CFLAGS = '$(shell pkg-config --cflags sfml-graphics)'
-
-RAYLIB_FLAGS = {
-    'win32': '-lraylib -lopengl32 -lgdi32 -lwinmm',
-    'unix': '$(shell pkg-config --libs raylib)'
-}
-RAYLIB_CFLAGS = '$(shell pkg-config --cflags raylib)'
-
-SDL2_FLAGS = {
-    'win32': '-lSDL2main -lSDL2',
-    'unix': '$(shell pkg-config --libs sdl2)'
-}
-SDL2_CFLAGS = '$(shell pkg-config --cflags sdl2)'
-
 TEMPLATES_DIR = files('makefile_generator') / 'templates'
 
 TEMPLATES = {
-    'windows': 'windows.mk.j2',
-    'linux': '__linux__.mak.j2',
-    'mac os': '__APPLE__.mak.j2',
-    'cross-platform' : 'cross-platform.mak.j2'
+    'win32': 'windows.mk.j2',
+    'unix': 'unix.mak.j2',
 }
+
+PROJECT_KINDS = {'binary', 'static', 'shared'}
