@@ -2,7 +2,7 @@
     <img src="docs/banner.png" alt="mkgen banner">
 <h1>MKGEN <em>a C/C++ Makefile generator</em></h1>
 
-[![Python 3.11+](https://img.shields.io/badge/Python-3.10+-3776AB.svg)](https://www.python.org/downloads)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-3776AB.svg)](https://www.python.org/downloads)
 [![Rich](https://img.shields.io/badge/Rich-14.2.0-FF5555.svg)](https://pypi.org/project/rich/)
 [![Jinja2](https://img.shields.io/badge/Jinja2-3.1.2-FF8800.svg)](https://pypi.org/project/Jinja2/)
 <a href="https://github.com/gtRZync/mkgen/blob/main/LICENSE">
