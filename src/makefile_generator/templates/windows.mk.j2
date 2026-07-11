@@ -1,0 +1,113 @@
+# ---- Auto-generated file: DO NOT EDIT ------------
+# This Makefile was auto-generated using mkgen
+#
+# mkgen is a simple Makefile generator for C and C++ projects
+# designed to remove the pain of manual compilation and linking.
+#
+# Home page : https://github.com/gtRZync
+# Documentation : https://github.com/gtRZync/mkgen.git
+# Author : Myson Dio
+#
+# You can safely regenerate this file at any time.
+# --------------------------------------------------
+SHELL := cmd.exe
+.SHELLFLAGS := /C
+
+.PHONY: clean run all bear
+
+-include {{ build_dir }}/sources.mk
+# --------------------------------------------------
+# Defaults / Config
+# --------------------------------------------------
+MODE ?= release
+VERBOSE ?= 0
+
+to_win32_path = $(subst /,\,$(dir $(1)))
+
+COMPILED_DIR := {{ build_dir }}\{{ compiled_dir }}
+BIN_DIR := {{ bin_dir }}
+OUT := $(BIN_DIR)\{{name}}.exe
+
+CLEAN := cmd /C "if exist $(COMPILED_DIR) rmdir /S /Q $(COMPILED_DIR)"
+RUN_CMD := $(OUT)
+DONE := echo Build complete
+
+OBJS := $(SOURCES:%=$(COMPILED_DIR)/%.o)
+
+# --------------------------------------------------
+# Compiler configuration
+# --------------------------------------------------
+{{ compiler.var }} := {{ compiler.name }}
+
+{{compiler.var}}FLAGS = -std={{compiler.std}} {{ compiler.cflags}} $(INCLUDES)
+
+{% if ld_flags %}
+LDFLAGS = {{ ld_flags }}
+{% endif %}
+
+ifeq ($(MODE), debug)
+    {{compiler.var}}FLAGS += -g -DDEBUG
+else
+    {{compiler.var}}FLAGS += -O2 -s -DNDEBUG
+endif
+
+{% if features %}
+LIBS = {{ features_flags }}
+{% endif %}
+
+ifeq ($(VERBOSE), 1)
+    Q :=
+else
+    Q := @
+endif
+
+$(OUT): $(OBJS) | $(BIN_DIR)
+
+# --------------------------------------------------
+# Main targets
+# --------------------------------------------------
+
+run: $(OUT)
+	$(Q)$(DONE)
+	$(Q)"$(RUN_CMD)"
+
+all: $(OUT)
+	$(Q)$(DONE)
+
+# --------------------------------------------------
+# Build rules
+# --------------------------------------------------
+
+$(COMPILED_DIR)/%{{src_ext}}.o: %{{src_ext}} | $(COMPILED_DIR)
+	$(Q)if not exist "$(call to_win32_path,$@)" mkdir "$(call to_win32_path,$@)"
+	$(Q)echo "Compiling $<"
+	$(Q)$({{compiler.var}}) $({{compiler.var}}FLAGS) -c -o $@ $<
+
+$(OUT): $(OBJS) | $(BIN_DIR)
+	$(Q)if not exist "$(call to_win32_path,$@)" mkdir "$(call to_win32_path,$@)"
+	$(Q)echo "Linking $(OBJS)"
+	$(Q)$({{compiler.var}}) -o $@ $^ $({{compiler.var}}FLAGS) $(LDFLAGS) $(LIBS)
+
+# --------------------------------------------------
+# Directory creation 
+# --------------------------------------------------
+
+$(COMPILED_DIR):
+	$(Q)if not exist "$(call to_win32_path,$@)" mkdir "$(call to_win32_path,$@)"
+
+$(BIN_DIR):
+	$(Q)if not exist "$(call to_win32_path,$@)" mkdir "$(call to_win32_path,$@)"
+
+# --------------------------------------------------
+# Utility targets
+# --------------------------------------------------
+
+clean:
+	$(Q)echo "Cleaning..."
+	$(Q)$(CLEAN)
+
+bear:
+	$(Q)bear -- make
+
+test:
+	@echo done

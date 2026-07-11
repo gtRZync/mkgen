@@ -1,16 +1,19 @@
-from .constants import (PROFILES, RAYLIB_CFLAGS, RAYLIB_FLAGS, SDL2_CFLAGS,
-                        SDL2_FLAGS, SFML_CFLAGS, SFML_FLAGS, TEMPLATES,
-                        TEMPLATES_DIR, WIN32_RESERVED_NAMES)
+from .constants import (CACHED_CONFIG_FILE, COMPILED_DIR, EXTERNAL, MAKEFILE,
+                        MKCACHE, MKGEN_CONFIG_FILE, MODULE, PROFILES, PUBLIC,
+                        SOURCES, TEMPLATES, TEMPLATES_DIR, TEST)
 
 __all__ = [
-    'SDL2_CFLAGS',
-    'SDL2_FLAGS',
-    'SFML_CFLAGS',
-    'SFML_FLAGS',
-    'RAYLIB_CFLAGS',
-    'RAYLIB_FLAGS',
     'PROFILES',
     'TEMPLATES_DIR',
     'TEMPLATES',
-    'WIN32_RESERVED_NAMES'
+    'MAKEFILE',
+    'MODULE',
+    'PUBLIC',
+    'MKCACHE',
+    'EXTERNAL',
+    'TEST',
+    'SOURCES',
+    'MKGEN_CONFIG_FILE',
+    'CACHED_CONFIG_FILE',
+    'COMPILED_DIR'
 ]

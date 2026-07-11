@@ -2,9 +2,8 @@
     <img src="docs/banner.png" alt="mkgen banner">
 <h1>MKGEN <em>a C/C++ Makefile generator</em></h1>
 
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB.svg)](https://www.python.org/downloads)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.10+-3776AB.svg)](https://www.python.org/downloads)
 [![Rich](https://img.shields.io/badge/Rich-14.2.0-FF5555.svg)](https://pypi.org/project/rich/)
-[![Questionary](https://img.shields.io/badge/Questionary-2.1.1-00BFFF.svg)](https://pypi.org/project/questionary/)
 [![Jinja2](https://img.shields.io/badge/Jinja2-3.1.2-FF8800.svg)](https://pypi.org/project/Jinja2/)
 <a href="https://github.com/gtRZync/mkgen/blob/main/LICENSE">
     <img src="https://img.shields.io/static/v1.svg?label=License&message=MIT&colorA=1e1e2e&colorB=89b4fa"/>
@@ -12,25 +11,6 @@
 </div>
 
 <div align="center"><b>Zero-pain</b> Makefiles for C and C++ projects</div>
-
-> [!CAUTION]
-> 
-> 
-> This project originally started as a **zero-configuration Makefile generator** designed around a very small, personal project layout.
-> 
-> As the project grew, I unintentionally pushed it toward becoming a *general-purpose build system*, adding heuristics to guess directory roles, targets, and structure.
-> 
-> This approach does **not scale** and led to fragile behavior once real-world layouts (modular source trees, private headers, platform code, external dependencies, tests, etc.) were introduced.
-> 
-> The project is now undergoing a **deep refactor** to remove heuristic guessing entirely and replace it with a deterministic, convention-driven model based on explicit filesystem anchors.
-> 
-> The goal is to return to something small, predictable, and fast **not** to compete with CMake or other full build systems.
-> 
-> Development will be slow because this refactor is happening alongside university coursework, but the redesign is actively in progress.
-> 
-> If you're here expecting stability: please wait for the new architecture branch to land.
->
-
 
 ## Supported languages
 
@@ -82,23 +62,11 @@ mkgen automates the boring part so I can focus on writing code.
 ## Features
 
 * Automatically generates a **Makefile** for C and C++ projects
-* Detects multiple source files and header files
+* Detects multiple source files and header files in a deterministic way using anchor files
 * Supports both **C** and **C++** compilation
 * Designed to scale from tiny projects to larger ones
-* Optional / conditional support for **graphical libraries**
+* Optional support for **graphical libraries**
 * Simple and minimal by design
-
----
-
-## Typical Use Case
-
-1. Start a small C or C++ project
-2. Add more `.c` / `.cpp` files over time
-3. Add headers, maybe a graphical library
-4. Run `mkgen generate`
-5. Get a ready‑to‑use Makefile after the interactive menu
-
-No manual compilation. No rewriting Makefiles.
 
 ---
 
@@ -119,13 +87,14 @@ It exists because *I needed it*.
 
 ## Requirements
 
-* Python 3.10+
+* Python 3.11+
 * A C compiler (`gcc`, `clang`, etc.)
 * or a C++ compiler (`g++`, `clang++`)
+* `make` using posix environement on windows (msys2, git bash...etc)
 
 ---
 
-## Usage
+## Installation
 
 1. Clone the repository:
 
@@ -143,40 +112,138 @@ cd mkgen
 pip install .
 ```
 
-3. You're finally ready to generate your Makefiles on the go :
+## Quick Start
+
+Assuming `MyProject` is an existing C or C++ project:
 
 ```sh
-mkgen generate
+cd MyProject
 ```
+
+Create anchor files to identify your project's modules and public include directories:
+
+```sh
+touch src/.module
+touch src/entity/.module
+touch src/objects/.module
+
+touch include/.public
+touch include/entity/.public
+touch include/objects/.public
+```
+
+Initialize the project configuration:
+
+```sh
+mkgen init .
+```
+
+Edit `mkgen.toml` to match your project's requirements.
+
+Generate the Makefiles:
+
+```sh
+mkdir -p build
+mkgen generate --root . --build-dir build
+```
+
+Build the project:
+
+```sh
+mkgen build --build-dir build --target run --parallel 12
+```
+
 > [!NOTE]
-> You can also specify a system or [generate cross-platform](#using-cross-platform-mode-instead-of-target_system). See the [examples](#usage-examples) and [arguments section](#arguments-for-generate) below for more details.
-
-4. Follow the interactive menu and boom a Makefile will appear at the specified output path or current working directory
-
+>
+> After the initial `generate`, structural changes (such as adding or removing modules or source files) are detected automatically by `mkgen build`, which regenerates the necessary generated files before invoking `make`.
 
 ## Commands
 
-### `generate`
+### `init`
 
-Generate a Makefile based on the current project structure and selected options.
-
-This command analyzes the project directory, applies heuristics to detect source/header/output/object folders, and generates the appropriate Makefile.
+Creates a mkgen.toml template in the project root.
 
 **Usage**
 
 ```bash
-mkgen generate [options]
+mkgen init <ROOT-DIR>
 ```
 
-> [!NOTE]
-> Folder scanning is recursive by default.<br>
-> GUI-related flags affect only compilation and linking flags in the generated Makefile.
+### Required positional argument
+
+| Argument          | Description                   |
+|-------------------|-------------------------------|
+| `root`            | The project source directory. |
+
+### Optional arguments
+
+| Argument             | Description| Default  |
+| -------------------- | -----------| -------- |
+| `--force` | Force config file generation if exists. | False     |
+| `-h`, `--help` | show an help message and exit |
+
+
+### `generate`
+
+Generate a Makefile based on the current project's config.
+
+**Usage**
+
+```bash
+mkgen generate [<options>]
+```
+
+### Required arguments
+
+| Argument          | Description                                                                                 |
+|------------------|---------------------------------------------------------------------------------------------|
+| `--root`   | The project source directory. |
+| `--build-dir`   | Directory where mkgen generates build files (including the Makefile). |
+
+### Optional arguments
+
+| Argument             | Description| Default  |
+| -------------------- | -----------| -------- |
+| `-l`, `--language`   | Specify the programming language to use. Supported: `C` or `C++`.| None     |
+| `-c`, `--compiler`   | Specify the compiler to use. This value will be written into the generated Makefile. | None     |
+| `-std`, `--standard` | Specify the language standard to use (e.g., c11, c17, c++11, c++17, c++20). | None     |
+| `--gui`    | Include GUI library flags in the Makefile. Supported backend: `SDL2`, `SFML`, `RAYLIB`. | None     |
+| `--app-name` | Specify the name of the output binary/executable. | None     |
+| `--force` | Force makefile generation if exists | False     |
+| `-h`, `--help` | show an help message and exit |
+
+---
+
+
+### `build`
+
+Builds the project using make under the hood.
+
+**Usage**
+
+```bash
+mkgen build [<options>]
+```
+
+### Required argument
+
+| Argument        | Description                                                          |
+|-----------------|----------------------------------------------------------------------|
+| `--build-dir`   | Directory where mkgen generates build files (including the Makefile).|
+
+### Optional arguments
+
+| Argument             | Description| Default  |
+| -------------------- | -----------| -------- |
+| `--parallel` | Indicate how many jobs make should run. | False     |
+| `--target` | Makefile recipe to build. | None     |
+| `-h`, `--help` | show an help message and exit |
 
 ---
 
 ### `version`
 
-Display the current version of the tool.
+Display mkgen's current version.
 
 **Usage**
 
@@ -185,77 +252,61 @@ mkgen version
 ```
 
 > [!NOTE]
-> This command does not accept any additional arguments.<br>
 > The version command is equivalent to running `mkgen --version`.<br>
 
 ---
 
-## Global options
+## Shared Command Options
 
 | Flag            | Description                         |
 |-----------------|-------------------------------------|
+| `--banner`      | Show ASCII banner                   |
+| `--no-banner`   | Disable ASCII banner                |
+
+## Global Options
+
+| Flag              | Description                        |
+|-------------------|------------------------------------|
 | `-v`, `--version` | Print version information and exit |
 | `-h`, `--help`    | Show help and exit                 |
-
-
-## Arguments for `generate`
-
-### Optional positional argument
-| Argument          | Description                                                                                 | Default |
-|------------------|---------------------------------------------------------------------------------------------|---------|
-| `target_system`   | Specify the system/OS for which the Makefile should be generated (e.g., `linux`, `windows`, `macos`). ⚠️ Mutually exclusive with cross-platform option (`--cross-platform` / `--portable`). | Current system/OS |
-
-### Optional keyword arguments (flags)
-
-| Argument             | Description                                                                                                                                                                                                                                       | Default  |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| `--cross-platform`, `--portable`   | Generate a Makefile that works across multiple systems. ⚠️ Cannot be used with `target_system`.                                                                                                                                                   | Disabled |
-| `-l`, `--lang`       | Specify the programming language to use. Supported: `C` or `C++`.                                                                                                                                                                                 | None     |
-| `-c`, `--compiler`   | Specify the compiler to use. This value will be written into the generated Makefile.                                                                                                                                                              | None     |
-| `-std`, `--standard` | Specify the language standard to use (e.g., c11, c17, c++11, c++17, c++20). Added to compiler flags in the Makefile.                                                                                                                              | None     |
-| `--gui`    | Include GUI library flags in the Makefile. Supported backend: `SDL2`, `SFML`, `RAYLIB`. <br>•If `--gui` is not specified and `--no-gui` is not used, the user is prompted to select a backend. <br>• Mutually exclusive with `--no-gui`. | None     |
-| `--no-gui`           | Disable any GUI backend prompts. Mutually exclusive with `--gui`.                                                                                                                                                                        | Disabled |
-| `-o`, `--output`     | Specify the output directory for the Makefile. Defaults to current working directory if path is invalid.                                                                                                                                          | `./`     |
-| `--binary-name`      | Specify the name of the output binary/executable. The Makefile will use this name for the compiled program.                                                                                                                                       | None     |
 
 ---
 
 ## Usage examples:
 
-### Defaults to current system
+### Default
 
 ```sh
-mkgen generate
+mkgen generate --root . --build-dir build/
 ```
 
-### Providing the optional positional argument
+> [!NOTE] 
+>
+> Uses mkgen config file (mkgen.toml)
+>
+> A template of this file can be generated using the init command.
+
+### Using cli overrides
+
+> [!CAUTION]
+> Not wired yet.
 
 ```sh
-mkgen generate linux
-```
-
-### Using optional flags
-
-```sh
-mkgen generate linux --lang C++ -c clang++ -std c++17 --gui=SDL2 -o ./build --binary-name my_app
-```
-
-```sh
-mkgen generate -l C++ --gui raylib 
-```
-
-```sh
-mkgen generate macos -l C -std c23 -c clang --no-gui  
-```
-
-### Using cross-platform mode instead of target_system
-
-```sh
-mkgen generate --cross-platform --lang C
+mkgen generate --root . \
+    --build-dir build/ \
+    --lang C++ \
+    -c clang++ \
+    -std c++17 \
+    --gui=SDL2 \
+    --app-name my_app
 ```
 
 ```sh
-mkgen generate --portable --lang C++
+mkgen generate --root . \
+    --build-dir build/ \
+    -l C \
+    -std c23 \
+    -c gcc
 ```
 
 ## Status

@@ -1,0 +1,3 @@
+
+class ExpectedUserError(Exception):
+    pass
